@@ -30,7 +30,7 @@ function WeeklySalesChart() {
   }, []);
 
   return (
-    <div className="bg-white rounded shadow-md p-4 h-64">
+    <div className="bg-white rounded shadow-md p-6 h-64">
       <h3 className="text-center mb-2">Total Sales by Week</h3>
       <canvas ref={canvasRef} className="w-full h-full" />
     </div>

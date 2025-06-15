@@ -1,15 +1,18 @@
 import React from 'react';
+import { FaBox, FaChartLine, FaCog, FaFileInvoiceDollar } from 'react-icons/fa';
 
-function SideMenu({ current, onChange }) {
+function SideMenu({ current, onChange, className = '' }) {
   return (
-    <nav className="w-48 bg-beige-dark min-h-screen p-4">
+    <nav className={`w-48 bg-beige-dark min-h-screen p-4 ${className}`}>
       <ul className="space-y-2">
         <li>
           <button
             onClick={() => onChange('inventory')}
             className={`block w-full text-left px-2 py-1 rounded ${current === 'inventory' ? 'bg-white' : ''}`}
           >
-            Inventory
+            <span className="inline-flex items-center gap-1">
+              <FaBox /> <span>Inventory</span>
+            </span>
           </button>
         </li>
         <li>
@@ -17,7 +20,9 @@ function SideMenu({ current, onChange }) {
             onClick={() => onChange('dashboard')}
             className={`block w-full text-left px-2 py-1 rounded ${current === 'dashboard' ? 'bg-white' : ''}`}
           >
-            Dashboard
+            <span className="inline-flex items-center gap-1">
+              <FaChartLine /> <span>Dashboard</span>
+            </span>
           </button>
         </li>
         <li>
@@ -25,7 +30,9 @@ function SideMenu({ current, onChange }) {
             onClick={() => onChange('settings')}
             className={`block w-full text-left px-2 py-1 rounded ${current === 'settings' ? 'bg-white' : ''}`}
           >
-            Settings
+            <span className="inline-flex items-center gap-1">
+              <FaCog /> <span>Settings</span>
+            </span>
           </button>
         </li>
         <li>
@@ -33,7 +40,9 @@ function SideMenu({ current, onChange }) {
             onClick={() => onChange('billing')}
             className={`block w-full text-left px-2 py-1 rounded ${current === 'billing' ? 'bg-white' : ''}`}
           >
-            Billing
+            <span className="inline-flex items-center gap-1">
+              <FaFileInvoiceDollar /> <span>Billing</span>
+            </span>
           </button>
         </li>
       </ul>

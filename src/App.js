@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import { useState } from 'react';
+import { AiOutlineMenu } from 'react-icons/ai';
 import Inventory from './components/Inventory';
 import AccountSettings from './components/AccountSettings';
 import Dashboard from './components/Dashboard';
@@ -9,6 +10,7 @@ import SideMenu from './components/SideMenu';
 
 function App() {
   const [view, setView] = useState('inventory');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const renderView = () => {
     switch (view) {
@@ -25,9 +27,22 @@ function App() {
   };
 
   return (
-    <div className="App min-h-screen flex">
-      <SideMenu current={view} onChange={setView} />
+    <div className="App min-h-screen flex relative">
+      <SideMenu
+        current={view}
+        onChange={(v) => {
+          setView(v);
+          setMenuOpen(false);
+        }}
+        className={`fixed sm:static z-10 transform transition-transform ${menuOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`}
+      />
       <div className="flex-1 flex flex-col items-center p-4">
+        <button
+          className="sm:hidden mb-2 self-start"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <AiOutlineMenu className="w-6 h-6" />
+        </button>
         <header className="w-full max-w-4xl text-center">
           <img src={logo} className="w-24 mx-auto mb-4" alt="logo" />
           {renderView()}
