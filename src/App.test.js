@@ -18,3 +18,9 @@ test('renders operations section', () => {
   const operationsHeader = screen.getByText(/Operations/i);
   expect(operationsHeader).toBeInTheDocument();
 });
+
+test('renders current quantity column', () => {
+  render(<App />);
+  const columnHeader = screen.getByText(/Current Qty/i);
+  expect(columnHeader).toBeInTheDocument();
+});

@@ -42,6 +42,17 @@ function Inventory() {
   const [editingOperation, setEditingOperation] = useState(null);
   const [savingOperation, setSavingOperation] = useState(false);
 
+  const operationsWithTotals = () => {
+    const totals = {};
+    return operations.map((op) => {
+      const qty = Number(op.quantity);
+      const prev = totals[op.item] || 0;
+      const newTotal = op.type === 'Add' ? prev + qty : prev - qty;
+      totals[op.item] = newTotal;
+      return { ...op, currentQty: `${newTotal} ${op.unit}` };
+    });
+  };
+
   const handleChange = (setter) => (e) => {
     const { name, value } = e.target;
     setter((prev) => ({ ...prev, [name]: value }));
@@ -483,12 +494,13 @@ function Inventory() {
         </button>
       </form>
       {renderTable(
-        operations,
+        operationsWithTotals(),
         [
           { label: 'Item', key: 'item' },
           { label: 'Type', key: 'type' },
           { label: 'Quantity', key: 'quantity' },
           { label: 'Date', key: 'date' },
+          { label: 'Current Qty', key: 'currentQty' },
         ],
         (idx) => {
           setEditingOperation(idx);
