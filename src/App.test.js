@@ -7,6 +7,12 @@ test('renders Visit Us link', () => {
   expect(linkElement).toBeInTheDocument();
 });
 
+test('renders settings menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Settings/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
 test('renders inventory section', () => {
   render(<App />);
   const headerElement = screen.getByText(/Green Coffee/i);
