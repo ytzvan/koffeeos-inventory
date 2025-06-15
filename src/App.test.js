@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import Dashboard from './components/Dashboard';
 
 test('renders Visit Us link', () => {
   render(<App />);
@@ -41,4 +42,11 @@ test('renders current quantity column', () => {
   render(<App />);
   const columnHeader = screen.getByText(/Current Qty/i);
   expect(columnHeader).toBeInTheDocument();
+});
+
+test('renders dashboard charts headings', () => {
+  window.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+  render(<Dashboard />);
+  expect(screen.getByText(/Total Sales by Week/i)).toBeInTheDocument();
+  expect(screen.getByText(/Sales by Product Type/i)).toBeInTheDocument();
 });
