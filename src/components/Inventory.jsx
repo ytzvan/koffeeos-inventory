@@ -24,10 +24,12 @@ function Inventory() {
   const [greenCoffee, setGreenCoffee] = useState([]);
   const [roastedCoffee, setRoastedCoffee] = useState([]);
   const [consumables, setConsumables] = useState([]);
+  const [operations, setOperations] = useState([]);
 
   const [greenInput, setGreenInput] = useState({ origin: '', weight: '', unit: 'kg', date: today });
   const [roastedInput, setRoastedInput] = useState({ blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' });
   const [consumableInput, setConsumableInput] = useState({ item: '', quantity: '', unit: 'grams' });
+  const [operationInput, setOperationInput] = useState({ item: '', type: 'Add', quantity: '', unit: 'kg', date: today });
 
   const [editingGreen, setEditingGreen] = useState(null);
   const [savingGreen, setSavingGreen] = useState(false);
@@ -37,6 +39,8 @@ function Inventory() {
 
   const [editingConsumable, setEditingConsumable] = useState(null);
   const [savingConsumable, setSavingConsumable] = useState(false);
+  const [editingOperation, setEditingOperation] = useState(null);
+  const [savingOperation, setSavingOperation] = useState(false);
 
   const handleChange = (setter) => (e) => {
     const { name, value } = e.target;
@@ -387,6 +391,108 @@ function Inventory() {
         (idx) => {
           setEditingConsumable(idx);
           setConsumableInput(consumables[idx]);
+        }
+      )}
+
+      <h2 className="text-xl font-semibold mb-3">Operations</h2>
+      <form
+        onSubmit={
+          editingOperation !== null
+            ? handleSave(
+                editingOperation,
+                setOperations,
+                operationInput,
+                setOperationInput,
+                { item: '', type: 'Add', quantity: '', unit: 'kg', date: today },
+                setSavingOperation,
+                setEditingOperation
+              )
+            : handleAdd(
+                operationInput,
+                setOperationInput,
+                setOperations,
+                { item: '', type: 'Add', quantity: '', unit: 'kg', date: today }
+              )
+        }
+        className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
+      >
+        <input
+          type="text"
+          name="item"
+          value={operationInput.item}
+          onChange={handleChange(setOperationInput)}
+          placeholder="Item"
+          className="p-1 border rounded flex-1"
+          required
+        />
+        <select
+          name="type"
+          value={operationInput.type}
+          onChange={handleChange(setOperationInput)}
+          className="p-1 border rounded"
+        >
+          <option value="Add">Add</option>
+          <option value="Remove">Remove</option>
+        </select>
+        <div className="flex flex-1 gap-1">
+          <input
+            type="number"
+            name="quantity"
+            value={operationInput.quantity}
+            onChange={handleChange(setOperationInput)}
+            placeholder="Quantity"
+            className="p-1 border rounded flex-1"
+            required
+          />
+          <select
+            name="unit"
+            value={operationInput.unit}
+            onChange={handleChange(setOperationInput)}
+            className="p-1 border rounded"
+          >
+            <option value="kg">kg</option>
+            <option value="lbs">lbs</option>
+            <option value="grams">grams</option>
+            <option value="kilograms">kilograms</option>
+            <option value="ml">ml</option>
+            <option value="liters">liters</option>
+            <option value="boxes">boxes</option>
+            <option value="units">units</option>
+          </select>
+        </div>
+        <input
+          type="date"
+          name="date"
+          value={operationInput.date}
+          onChange={handleChange(setOperationInput)}
+          className="p-1 border rounded flex-1"
+          required
+        />
+        <button
+          type="submit"
+          className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
+          disabled={savingOperation}
+        >
+          {savingOperation ? (
+            <span className="w-4 h-4 border-2 border-t-transparent border-gray-800 rounded-full animate-spin" />
+          ) : editingOperation !== null ? (
+            'Save'
+          ) : (
+            'Add'
+          )}
+        </button>
+      </form>
+      {renderTable(
+        operations,
+        [
+          { label: 'Item', key: 'item' },
+          { label: 'Type', key: 'type' },
+          { label: 'Quantity', key: 'quantity' },
+          { label: 'Date', key: 'date' },
+        ],
+        (idx) => {
+          setEditingOperation(idx);
+          setOperationInput(operations[idx]);
         }
       )}
     </div>

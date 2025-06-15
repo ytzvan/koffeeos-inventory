@@ -12,3 +12,9 @@ test('renders inventory section', () => {
   const headerElement = screen.getByText(/Green Coffee/i);
   expect(headerElement).toBeInTheDocument();
 });
+
+test('renders operations section', () => {
+  render(<App />);
+  const operationsHeader = screen.getByText(/Operations/i);
+  expect(operationsHeader).toBeInTheDocument();
+});
