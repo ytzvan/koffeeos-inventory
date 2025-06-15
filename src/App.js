@@ -4,12 +4,12 @@ import Inventory from './components/Inventory';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <div className="App min-h-screen flex flex-col items-center p-4">
+      <header className="w-full max-w-4xl text-center">
+        <img src={logo} className="w-24 mx-auto mb-4" alt="logo" />
         <Inventory />
         <a
-          className="App-link"
+          className="text-sm underline text-gray-600 hover:text-gray-800"
           href="https://pulpa.coffee"
           target="_blank"
           rel="noopener noreferrer"
