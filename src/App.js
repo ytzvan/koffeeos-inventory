@@ -3,6 +3,8 @@ import './App.css';
 import { useState } from 'react';
 import Inventory from './components/Inventory';
 import AccountSettings from './components/AccountSettings';
+import Dashboard from './components/Dashboard';
+import Billing from './components/Billing';
 import SideMenu from './components/SideMenu';
 
 function App() {
@@ -10,6 +12,10 @@ function App() {
 
   const renderView = () => {
     switch (view) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'billing':
+        return <Billing />;
       case 'settings':
         return <AccountSettings />;
       case 'inventory':

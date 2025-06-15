@@ -13,6 +13,18 @@ test('renders settings menu', () => {
   expect(menuItem).toBeInTheDocument();
 });
 
+test('renders dashboard menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Dashboard/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
+test('renders billing menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Billing/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
 test('renders inventory section', () => {
   render(<App />);
   const headerElement = screen.getByText(/Green Coffee/i);
