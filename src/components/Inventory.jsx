@@ -3,13 +3,31 @@ import React, { useState } from 'react';
 function Inventory() {
   const today = new Date().toISOString().split('T')[0];
 
+  const producerCountries = [
+    'Brazil',
+    'Colombia',
+    'Ethiopia',
+    'Vietnam',
+    'Indonesia',
+    'Guatemala',
+    'Mexico',
+    'Peru',
+    'Honduras',
+    'Nicaragua',
+    'Costa Rica',
+    'Kenya',
+    'Rwanda',
+    'Uganda',
+    'India',
+  ];
+
   const [greenCoffee, setGreenCoffee] = useState([]);
   const [roastedCoffee, setRoastedCoffee] = useState([]);
   const [consumables, setConsumables] = useState([]);
 
   const [greenInput, setGreenInput] = useState({ origin: '', weight: '', unit: 'kg', date: today });
-  const [roastedInput, setRoastedInput] = useState({ blend: '', quantity: '', unit: 'kg', date: today });
-  const [consumableInput, setConsumableInput] = useState({ item: '', quantity: '', unit: '' });
+  const [roastedInput, setRoastedInput] = useState({ blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' });
+  const [consumableInput, setConsumableInput] = useState({ item: '', quantity: '', unit: 'grams' });
 
   const [editingGreen, setEditingGreen] = useState(null);
   const [savingGreen, setSavingGreen] = useState(false);
@@ -42,13 +60,13 @@ function Inventory() {
     }, 1000);
   };
 
-  const renderTable = (data, headers, onEdit) => (
+  const renderTable = (data, columns, onEdit) => (
     <table className="w-full border-collapse mb-8 text-sm">
       <thead>
         <tr className="bg-beige-dark">
-          {headers.map((h) => (
-            <th key={h} className="border px-2 py-1 text-left">
-              {h}
+          {columns.map((col) => (
+            <th key={col.label} className="border px-2 py-1 text-left">
+              {col.label}
             </th>
           ))}
           {onEdit && <th className="border px-2 py-1">Actions</th>}
@@ -57,14 +75,14 @@ function Inventory() {
       <tbody>
         {data.map((item, idx) => (
           <tr key={idx} className="odd:bg-white even:bg-beige/50">
-            {headers.map((h) => {
-              const key = h.toLowerCase();
+            {columns.map((col) => {
+              const key = col.key;
               let value = item[key];
               if ((key === 'weight' || key === 'quantity') && item.unit) {
                 value = `${value} ${item.unit}`;
               }
               return (
-                <td key={h} className="border px-2 py-1">
+                <td key={col.label} className="border px-2 py-1">
                   {value}
                 </td>
               );
@@ -110,15 +128,22 @@ function Inventory() {
         }
         className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
       >
-        <input
-          type="text"
+        <select
           name="origin"
           value={greenInput.origin}
           onChange={handleChange(setGreenInput)}
-          placeholder="Origin"
           className="p-1 border rounded flex-1"
           required
-        />
+        >
+          <option value="" disabled>
+            Select Origin
+          </option>
+          {producerCountries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
         <div className="flex flex-1 gap-1">
           <input
             type="number"
@@ -161,10 +186,18 @@ function Inventory() {
           )}
         </button>
       </form>
-      {renderTable(greenCoffee, ['Origin', 'Weight', 'Date'], (idx) => {
-        setEditingGreen(idx);
-        setGreenInput(greenCoffee[idx]);
-      })}
+      {renderTable(
+        greenCoffee,
+        [
+          { label: 'Origin', key: 'origin' },
+          { label: 'Weight', key: 'weight' },
+          { label: 'Date', key: 'date' },
+        ],
+        (idx) => {
+          setEditingGreen(idx);
+          setGreenInput(greenCoffee[idx]);
+        }
+      )}
 
       <h2 className="text-xl font-semibold mb-3">Roasted Coffee</h2>
       <form
@@ -175,7 +208,7 @@ function Inventory() {
                 setRoastedCoffee,
                 roastedInput,
                 setRoastedInput,
-                { blend: '', quantity: '', unit: 'kg', date: today },
+                { blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' },
                 setSavingRoasted,
                 setEditingRoasted
               )
@@ -183,7 +216,7 @@ function Inventory() {
                 roastedInput,
                 setRoastedInput,
                 setRoastedCoffee,
-                { blend: '', quantity: '', unit: 'kg', date: today }
+                { blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' }
               )
         }
         className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
@@ -197,6 +230,20 @@ function Inventory() {
           className="p-1 border rounded flex-1"
           required
         />
+        <select
+          name="roastLevel"
+          value={roastedInput.roastLevel}
+          onChange={handleChange(setRoastedInput)}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Roast Level
+          </option>
+          <option value="Light">Light</option>
+          <option value="Medium">Medium</option>
+          <option value="Dark">Dark</option>
+        </select>
         <div className="flex flex-1 gap-1">
           <input
             type="number"
@@ -225,6 +272,14 @@ function Inventory() {
           className="p-1 border rounded flex-1"
           required
         />
+        <input
+          type="text"
+          name="notes"
+          value={roastedInput.notes}
+          onChange={handleChange(setRoastedInput)}
+          placeholder="Notes"
+          className="p-1 border rounded flex-1"
+        />
         <button
           type="submit"
           className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
@@ -239,10 +294,20 @@ function Inventory() {
           )}
         </button>
       </form>
-      {renderTable(roastedCoffee, ['Blend', 'Quantity', 'Date'], (idx) => {
-        setEditingRoasted(idx);
-        setRoastedInput(roastedCoffee[idx]);
-      })}
+      {renderTable(
+        roastedCoffee,
+        [
+          { label: 'Blend', key: 'blend' },
+          { label: 'Roast Level', key: 'roastLevel' },
+          { label: 'Quantity', key: 'quantity' },
+          { label: 'Date', key: 'date' },
+          { label: 'Notes', key: 'notes' },
+        ],
+        (idx) => {
+          setEditingRoasted(idx);
+          setRoastedInput(roastedCoffee[idx]);
+        }
+      )}
 
       <h2 className="text-xl font-semibold mb-3">Consumables</h2>
       <form
@@ -253,7 +318,7 @@ function Inventory() {
                 setConsumables,
                 consumableInput,
                 setConsumableInput,
-                { item: '', quantity: '', unit: '' },
+                { item: '', quantity: '', unit: 'grams' },
                 setSavingConsumable,
                 setEditingConsumable
               )
@@ -261,7 +326,7 @@ function Inventory() {
                 consumableInput,
                 setConsumableInput,
                 setConsumables,
-                { item: '', quantity: '', unit: '' }
+                { item: '', quantity: '', unit: 'grams' }
               )
         }
         className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
@@ -284,15 +349,20 @@ function Inventory() {
           className="p-1 border rounded flex-1"
           required
         />
-        <input
-          type="text"
+        <select
           name="unit"
           value={consumableInput.unit}
           onChange={handleChange(setConsumableInput)}
-          placeholder="Unit"
           className="p-1 border rounded flex-1"
           required
-        />
+        >
+          <option value="grams">grams</option>
+          <option value="kilograms">kilograms</option>
+          <option value="ml">ml</option>
+          <option value="liters">liters</option>
+          <option value="boxes">boxes</option>
+          <option value="units">units</option>
+        </select>
         <button
           type="submit"
           className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
@@ -307,10 +377,18 @@ function Inventory() {
           )}
         </button>
       </form>
-      {renderTable(consumables, ['Item', 'Quantity', 'Unit'], (idx) => {
-        setEditingConsumable(idx);
-        setConsumableInput(consumables[idx]);
-      })}
+      {renderTable(
+        consumables,
+        [
+          { label: 'Item', key: 'item' },
+          { label: 'Quantity', key: 'quantity' },
+          { label: 'Unit', key: 'unit' },
+        ],
+        (idx) => {
+          setEditingConsumable(idx);
+          setConsumableInput(consumables[idx]);
+        }
+      )}
     </div>
   );
 }

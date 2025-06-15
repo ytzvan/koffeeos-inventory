@@ -7,8 +7,8 @@ test('renders Visit Us link', () => {
   expect(linkElement).toBeInTheDocument();
 });
 
-test('renders greeting message', () => {
+test('renders inventory section', () => {
   render(<App />);
-  const greetingElement = screen.getByText(/Hola Mundo desde Pulpa Coffee Co./i);
-  expect(greetingElement).toBeInTheDocument();
+  const headerElement = screen.getByText(/Green Coffee/i);
+  expect(headerElement).toBeInTheDocument();
 });
