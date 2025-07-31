@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
+import Dashboard from './components/Dashboard';
 
 test('renders Visit Us link', () => {
   render(<App />);
@@ -7,8 +8,45 @@ test('renders Visit Us link', () => {
   expect(linkElement).toBeInTheDocument();
 });
 
-test('renders greeting message', () => {
+test('renders settings menu', () => {
   render(<App />);
-  const greetingElement = screen.getByText(/Hola Mundo desde Pulpa Coffee Co./i);
-  expect(greetingElement).toBeInTheDocument();
+  const menuItem = screen.getByText(/Settings/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
+test('renders dashboard menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Dashboard/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
+test('renders billing menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Billing/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
+test('renders inventory section', () => {
+  render(<App />);
+  const headerElement = screen.getByText(/Green Coffee/i);
+  expect(headerElement).toBeInTheDocument();
+});
+
+test('renders operations section', () => {
+  render(<App />);
+  const operationsHeader = screen.getByText(/Operations/i);
+  expect(operationsHeader).toBeInTheDocument();
+});
+
+test('renders current quantity column', () => {
+  render(<App />);
+  const columnHeader = screen.getByText(/Current Qty/i);
+  expect(columnHeader).toBeInTheDocument();
+});
+
+test('renders dashboard charts headings', () => {
+  window.Chart = jest.fn(() => ({ destroy: jest.fn() }));
+  render(<Dashboard />);
+  expect(screen.getByText(/Total Sales by Week/i)).toBeInTheDocument();
+  expect(screen.getByText(/Sales by Product Type/i)).toBeInTheDocument();
 });
