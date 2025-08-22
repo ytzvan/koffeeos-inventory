@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import countries from '../models/countries';
+import providers from '../models/providers';
 
 function Coffee() {
   const initialForm = {
     name: '',
-    origin: '',
+    origins: [],
+    providerId: '',
     producer: '',
     farm: '',
     region: '',
@@ -20,7 +23,8 @@ function Coffee() {
   const initialCoffees = [
     {
       name: 'Guatemala Huehuetenango',
-      origin: 'Guatemala',
+      origins: ['Guatemala'],
+      providerId: 'provider1',
       producer: 'Juan Perez',
       farm: 'Finca La Esperanza',
       region: 'Huehuetenango',
@@ -33,7 +37,8 @@ function Coffee() {
     },
     {
       name: 'Ethiopia Yirgacheffe',
-      origin: 'Ethiopia',
+      origins: ['Ethiopia'],
+      providerId: 'provider2',
       producer: 'Abebe',
       farm: 'Heirloom Farm',
       region: 'Yirgacheffe',
@@ -57,6 +62,27 @@ function Coffee() {
     setForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleOriginChange = (e) => {
+    const selected = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
+    setForm((prev) => ({ ...prev, origins: selected }));
+  };
+
+  const handleProviderChange = (e) => {
+    const providerId = e.target.value;
+    const provider = providers.find((p) => p.id === providerId);
+    setForm((prev) => ({
+      ...prev,
+      providerId,
+      producer: provider?.name || '',
+      farm: provider?.farm || '',
+      region: provider?.region || '',
+      altitude: provider?.altitude || '',
     }));
   };
 
@@ -103,7 +129,7 @@ function Coffee() {
   const renderRow = (coffee, idx) => (
     <tr key={idx} className="odd:bg-white even:bg-beige/50">
       <td className="border px-2 py-1">{coffee.name}</td>
-      <td className="border px-2 py-1">{coffee.origin}</td>
+      <td className="border px-2 py-1">{coffee.origins.join(', ')}</td>
       <td className="border px-2 py-1">{coffee.producer}</td>
       <td className="border px-2 py-1">{coffee.farm}</td>
       <td className="border px-2 py-1">{coffee.region}</td>
@@ -164,15 +190,36 @@ function Coffee() {
           className="p-1 border rounded"
           required
         />
-        <input
-          type="text"
-          name="origin"
-          value={form.origin}
-          onChange={handleChange}
-          placeholder="Origin"
+        <select
+          name="origins"
+          multiple
+          value={form.origins}
+          onChange={handleOriginChange}
           className="p-1 border rounded"
           required
-        />
+        >
+          {countries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <select
+          name="providerId"
+          value={form.providerId}
+          onChange={handleProviderChange}
+          className="p-1 border rounded"
+          required
+        >
+          <option value="" disabled>
+            Provider
+          </option>
+          {providers.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name} - {p.farm}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           name="producer"
@@ -320,7 +367,7 @@ function Coffee() {
           <thead>
             <tr className="bg-beige-dark">
               <th className="border px-2 py-1 text-left">Name</th>
-              <th className="border px-2 py-1 text-left">Origin</th>
+              <th className="border px-2 py-1 text-left">Origins</th>
               <th className="border px-2 py-1 text-left">Producer</th>
               <th className="border px-2 py-1 text-left">Farm</th>
               <th className="border px-2 py-1 text-left">Region</th>
