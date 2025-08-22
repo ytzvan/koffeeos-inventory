@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+import logo from './koffeeos-logo.svg';
 import './App.css';
 import { useState } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
