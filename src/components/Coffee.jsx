@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import countries from '../models/countries';
 import providers from '../models/providers';
+import CoffeeModel from '../models/coffee';
+import RoastedCoffee from '../models/roastedCoffee';
 
 function Coffee() {
   const initialForm = {
@@ -21,7 +23,7 @@ function Coffee() {
   };
 
   const initialCoffees = [
-    {
+    new CoffeeModel({
       name: 'Guatemala Huehuetenango',
       origins: ['Guatemala'],
       providerId: 'provider1',
@@ -32,10 +34,9 @@ function Coffee() {
       varietal: 'Bourbon',
       altitude: '1800m',
       tastingNotes: 'Chocolate, Citrus',
-      isRoasted: false,
       purchasePrice: '5.00',
-    },
-    {
+    }),
+    new RoastedCoffee({
       name: 'Ethiopia Yirgacheffe',
       origins: ['Ethiopia'],
       providerId: 'provider2',
@@ -46,10 +47,10 @@ function Coffee() {
       varietal: 'Heirloom',
       altitude: '2000m',
       tastingNotes: 'Floral, Berry',
-      isRoasted: true,
       roastLevel: 'Light',
       loss: '12',
-    },
+      purchasePrice: '15.00',
+    }),
   ];
 
   const [form, setForm] = useState(initialForm);
@@ -88,10 +89,13 @@ function Coffee() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newCoffee = form.isRoasted
+      ? new RoastedCoffee(form)
+      : new CoffeeModel(form);
     if (editingIndex !== null) {
-      setCoffees((prev) => prev.map((c, i) => (i === editingIndex ? form : c)));
+      setCoffees((prev) => prev.map((c, i) => (i === editingIndex ? newCoffee : c)));
     } else {
-      setCoffees((prev) => [...prev, form]);
+      setCoffees((prev) => [...prev, newCoffee]);
     }
     setForm(initialForm);
     setEditingIndex(null);
@@ -115,7 +119,13 @@ function Coffee() {
 
   const handleCreateRoast = (idx) => {
     const green = coffees[idx];
-    setForm({ ...green, isRoasted: true, roastLevel: '', loss: '' });
+    setForm({
+      ...green,
+      isRoasted: true,
+      roastLevel: '',
+      loss: '',
+      purchasePrice: '',
+    });
     setEditingIndex(null);
     setShowForm(true);
   };
@@ -127,7 +137,7 @@ function Coffee() {
   };
 
   const renderRow = (coffee, idx) => (
-    <tr key={idx} className="odd:bg-white even:bg-beige/50">
+    <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
       <td className="border px-2 py-1">{coffee.name}</td>
       <td className="border px-2 py-1">{coffee.origins.join(', ')}</td>
       <td className="border px-2 py-1">{coffee.producer}</td>
@@ -140,13 +150,13 @@ function Coffee() {
       <td className="border px-2 py-1">{coffee.isRoasted ? 'Roasted' : 'Green'}</td>
       <td className="border px-2 py-1">{coffee.isRoasted ? coffee.roastLevel : ''}</td>
       <td className="border px-2 py-1">{coffee.isRoasted ? coffee.loss : ''}</td>
-      <td className="border px-2 py-1">{!coffee.isRoasted ? coffee.purchasePrice : ''}</td>
+      <td className="border px-2 py-1">{coffee.purchasePrice}</td>
       <td className="border px-2 py-1 text-center">
         {!coffee.isRoasted && (
           <button
             type="button"
             onClick={() => handleCreateRoast(idx)}
-            className="text-green-600 underline mr-2"
+            className="text-dark-green underline mr-2"
           >
             Create Roast
           </button>
@@ -170,12 +180,12 @@ function Coffee() {
   );
 
   return (
-    <div className="p-4 bg-white rounded shadow-md mb-6">
-      <h2 className="text-xl font-semibold mb-3">Coffees</h2>
+    <div className="p-4 bg-white rounded shadow-md mb-6 w-full">
+      <h2 className="text-xl font-semibold mb-3 text-dark-green">Coffees</h2>
       <button
         type="button"
         onClick={handleAddNew}
-        className="mb-4 px-3 py-1 bg-beige-dark text-gray-800 rounded"
+        className="mb-4 px-3 py-1 bg-dark-green text-white rounded"
       >
         Add Coffee
       </button>
@@ -328,6 +338,16 @@ function Coffee() {
               className="p-1 border rounded"
               required
             />
+            <input
+              type="number"
+              name="purchasePrice"
+              value={form.purchasePrice}
+              onChange={handleChange}
+              placeholder="Purchase Price"
+              className="p-1 border rounded"
+              required
+              step="0.01"
+            />
           </>
         ) : (
           <input
@@ -344,7 +364,7 @@ function Coffee() {
         <div className="flex gap-2">
           <button
             type="submit"
-            className="px-3 py-1 bg-beige-dark text-gray-800 rounded min-w-[64px]"
+            className="px-3 py-1 bg-dark-green text-white rounded min-w-[64px]"
           >
             {editingIndex !== null ? 'Save' : 'Add'}
           </button>
@@ -365,7 +385,7 @@ function Coffee() {
       <div className="overflow-x-auto w-full">
         <table className="min-w-full border-collapse mb-8 text-sm">
           <thead>
-            <tr className="bg-beige-dark">
+            <tr className="bg-dark-green text-white">
               <th className="border px-2 py-1 text-left">Name</th>
               <th className="border px-2 py-1 text-left">Origins</th>
               <th className="border px-2 py-1 text-left">Producer</th>

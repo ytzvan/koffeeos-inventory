@@ -3,12 +3,12 @@ import { FaBox, FaChartLine, FaCog, FaFileInvoiceDollar, FaCoffee } from 'react-
 
 function SideMenu({ current, onChange, className = '' }) {
   return (
-    <nav className={`w-48 bg-beige-dark min-h-screen p-4 ${className}`}>
+    <nav className={`w-48 bg-dark-green text-white min-h-screen p-4 ${className}`}>
       <ul className="space-y-2">
         <li>
           <button
             onClick={() => onChange('coffee')}
-            className={`block w-full text-left px-2 py-1 rounded ${current === 'coffee' ? 'bg-white' : ''}`}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'coffee' ? 'bg-white text-dark-green' : ''}`}
           >
             <span className="inline-flex items-center gap-1">
               <FaCoffee /> <span>Coffees</span>
@@ -18,7 +18,7 @@ function SideMenu({ current, onChange, className = '' }) {
         <li>
           <button
             onClick={() => onChange('inventory')}
-            className={`block w-full text-left px-2 py-1 rounded ${current === 'inventory' ? 'bg-white' : ''}`}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'inventory' ? 'bg-white text-dark-green' : ''}`}
           >
             <span className="inline-flex items-center gap-1">
               <FaBox /> <span>Inventory</span>
@@ -28,7 +28,7 @@ function SideMenu({ current, onChange, className = '' }) {
         <li>
           <button
             onClick={() => onChange('dashboard')}
-            className={`block w-full text-left px-2 py-1 rounded ${current === 'dashboard' ? 'bg-white' : ''}`}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'dashboard' ? 'bg-white text-dark-green' : ''}`}
           >
             <span className="inline-flex items-center gap-1">
               <FaChartLine /> <span>Dashboard</span>
@@ -38,7 +38,7 @@ function SideMenu({ current, onChange, className = '' }) {
         <li>
           <button
             onClick={() => onChange('settings')}
-            className={`block w-full text-left px-2 py-1 rounded ${current === 'settings' ? 'bg-white' : ''}`}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'settings' ? 'bg-white text-dark-green' : ''}`}
           >
             <span className="inline-flex items-center gap-1">
               <FaCog /> <span>Settings</span>
@@ -48,7 +48,7 @@ function SideMenu({ current, onChange, className = '' }) {
         <li>
           <button
             onClick={() => onChange('billing')}
-            className={`block w-full text-left px-2 py-1 rounded ${current === 'billing' ? 'bg-white' : ''}`}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'billing' ? 'bg-white text-dark-green' : ''}`}
           >
             <span className="inline-flex items-center gap-1">
               <FaFileInvoiceDollar /> <span>Billing</span>

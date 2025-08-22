@@ -46,7 +46,7 @@ function App() {
         >
           <AiOutlineMenu className="w-6 h-6" />
         </button>
-        <header className="w-full max-w-4xl text-center">
+        <header className={`w-full ${view === 'coffee' ? '' : 'max-w-4xl'} text-center`}>
           <img src={logo} className="w-24 mx-auto mb-4" alt="logo" />
           {renderView()}
           <a

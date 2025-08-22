@@ -5,6 +5,7 @@ module.exports = {
       colors: {
         beige: '#f5f5dc',
         'beige-dark': '#e5e1c6',
+        'dark-green': '#064e3b',
       },
     },
   },
