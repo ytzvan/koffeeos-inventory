@@ -1,5 +1,12 @@
 import React from 'react';
-import { FaBox, FaChartLine, FaCog, FaFileInvoiceDollar, FaCoffee } from 'react-icons/fa';
+import {
+  FaBox,
+  FaChartLine,
+  FaCog,
+  FaFileInvoiceDollar,
+  FaCoffee,
+  FaChartBar,
+} from 'react-icons/fa';
 
 function SideMenu({ current, onChange, className = '' }) {
   return (
@@ -32,6 +39,16 @@ function SideMenu({ current, onChange, className = '' }) {
           >
             <span className="inline-flex items-center gap-1">
               <FaChartLine /> <span>Dashboard</span>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button
+            onClick={() => onChange('projections')}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'projections' ? 'bg-white text-dark-green' : ''}`}
+          >
+            <span className="inline-flex items-center gap-1">
+              <FaChartBar /> <span>Projections</span>
             </span>
           </button>
         </li>

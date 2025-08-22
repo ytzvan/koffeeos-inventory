@@ -8,24 +8,37 @@ import Dashboard from './components/Dashboard';
 import Billing from './components/Billing';
 import SideMenu from './components/SideMenu';
 import Coffee from './components/Coffee';
+import Projections from './components/Projections';
+import coffeeData from './models/coffeeData';
 
 function App() {
   const [view, setView] = useState('inventory');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [coffees, setCoffees] = useState(coffeeData);
+  const [bags, setBags] = useState([]);
 
   const renderView = () => {
     switch (view) {
       case 'coffee':
-        return <Coffee />;
+        return <Coffee coffees={coffees} setCoffees={setCoffees} />;
       case 'dashboard':
         return <Dashboard />;
       case 'billing':
         return <Billing />;
       case 'settings':
         return <AccountSettings />;
+      case 'projections':
+        return <Projections bags={bags} />;
       case 'inventory':
       default:
-        return <Inventory />;
+        return (
+          <Inventory
+            coffees={coffees}
+            setCoffees={setCoffees}
+            bags={bags}
+            setBags={setBags}
+          />
+        );
     }
   };
 

@@ -28,19 +28,19 @@ test('renders billing menu', () => {
 
 test('renders inventory section', () => {
   render(<App />);
-  const headerElement = screen.getByText(/Green Coffee/i);
-  expect(headerElement).toBeInTheDocument();
+  const headers = screen.getAllByText(/Green Coffee/i);
+  expect(headers[0]).toBeInTheDocument();
 });
 
-test('renders operations section', () => {
+test('renders roasted section', () => {
   render(<App />);
-  const operationsHeader = screen.getByText(/Operations/i);
-  expect(operationsHeader).toBeInTheDocument();
+  const roastedHeader = screen.getByText(/Roasted Coffee/i);
+  expect(roastedHeader).toBeInTheDocument();
 });
 
-test('renders current quantity column', () => {
+test('renders quantity column', () => {
   render(<App />);
-  const columnHeader = screen.getByText(/Current Qty/i);
+  const columnHeader = screen.getAllByText(/Quantity/i)[0];
   expect(columnHeader).toBeInTheDocument();
 });
 

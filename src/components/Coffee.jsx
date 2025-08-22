@@ -4,7 +4,7 @@ import providers from '../models/providers';
 import CoffeeModel from '../models/coffee';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function Coffee() {
+function Coffee({ coffees, setCoffees }) {
   const initialForm = {
     name: '',
     origins: [],
@@ -22,39 +22,7 @@ function Coffee() {
     purchasePrice: '',
   };
 
-  const initialCoffees = [
-    new CoffeeModel({
-      name: 'Guatemala Huehuetenango',
-      origins: ['Guatemala'],
-      providerId: 'provider1',
-      producer: 'Juan Perez',
-      farm: 'Finca La Esperanza',
-      region: 'Huehuetenango',
-      process: 'Washed',
-      varietal: 'Bourbon',
-      altitude: '1800m',
-      tastingNotes: 'Chocolate, Citrus',
-      purchasePrice: '5.00',
-    }),
-    new RoastedCoffee({
-      name: 'Ethiopia Yirgacheffe',
-      origins: ['Ethiopia'],
-      providerId: 'provider2',
-      producer: 'Abebe',
-      farm: 'Heirloom Farm',
-      region: 'Yirgacheffe',
-      process: 'Natural',
-      varietal: 'Heirloom',
-      altitude: '2000m',
-      tastingNotes: 'Floral, Berry',
-      roastLevel: 'Light',
-      loss: '12',
-      purchasePrice: '15.00',
-    }),
-  ];
-
   const [form, setForm] = useState(initialForm);
-  const [coffees, setCoffees] = useState(initialCoffees);
   const [editingIndex, setEditingIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -103,7 +71,7 @@ function Coffee() {
   };
 
   const handleEdit = (idx) => {
-    setForm(coffees[idx]);
+    setForm({ ...coffees[idx] });
     setEditingIndex(idx);
     setShowForm(true);
   };
