@@ -14,11 +14,43 @@ function Coffee() {
     isRoasted: false,
     roastLevel: '',
     loss: '',
+    purchasePrice: '',
   };
 
+  const initialCoffees = [
+    {
+      name: 'Guatemala Huehuetenango',
+      origin: 'Guatemala',
+      producer: 'Juan Perez',
+      farm: 'Finca La Esperanza',
+      region: 'Huehuetenango',
+      process: 'Washed',
+      varietal: 'Bourbon',
+      altitude: '1800m',
+      tastingNotes: 'Chocolate, Citrus',
+      isRoasted: false,
+      purchasePrice: '5.00',
+    },
+    {
+      name: 'Ethiopia Yirgacheffe',
+      origin: 'Ethiopia',
+      producer: 'Abebe',
+      farm: 'Heirloom Farm',
+      region: 'Yirgacheffe',
+      process: 'Natural',
+      varietal: 'Heirloom',
+      altitude: '2000m',
+      tastingNotes: 'Floral, Berry',
+      isRoasted: true,
+      roastLevel: 'Light',
+      loss: '12',
+    },
+  ];
+
   const [form, setForm] = useState(initialForm);
-  const [coffees, setCoffees] = useState([]);
+  const [coffees, setCoffees] = useState(initialCoffees);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,11 +69,13 @@ function Coffee() {
     }
     setForm(initialForm);
     setEditingIndex(null);
+    setShowForm(false);
   };
 
   const handleEdit = (idx) => {
     setForm(coffees[idx]);
     setEditingIndex(idx);
+    setShowForm(true);
   };
 
   const handleDelete = (idx) => {
@@ -49,7 +83,21 @@ function Coffee() {
     if (editingIndex === idx) {
       setForm(initialForm);
       setEditingIndex(null);
+      setShowForm(false);
     }
+  };
+
+  const handleCreateRoast = (idx) => {
+    const green = coffees[idx];
+    setForm({ ...green, isRoasted: true, roastLevel: '', loss: '' });
+    setEditingIndex(null);
+    setShowForm(true);
+  };
+
+  const handleAddNew = () => {
+    setForm(initialForm);
+    setEditingIndex(null);
+    setShowForm(true);
   };
 
   const renderRow = (coffee, idx) => (
@@ -66,7 +114,17 @@ function Coffee() {
       <td className="border px-2 py-1">{coffee.isRoasted ? 'Roasted' : 'Green'}</td>
       <td className="border px-2 py-1">{coffee.isRoasted ? coffee.roastLevel : ''}</td>
       <td className="border px-2 py-1">{coffee.isRoasted ? coffee.loss : ''}</td>
+      <td className="border px-2 py-1">{!coffee.isRoasted ? coffee.purchasePrice : ''}</td>
       <td className="border px-2 py-1 text-center">
+        {!coffee.isRoasted && (
+          <button
+            type="button"
+            onClick={() => handleCreateRoast(idx)}
+            className="text-green-600 underline mr-2"
+          >
+            Create Roast
+          </button>
+        )}
         <button
           type="button"
           onClick={() => handleEdit(idx)}
@@ -88,7 +146,15 @@ function Coffee() {
   return (
     <div className="p-4 bg-white rounded shadow-md mb-6">
       <h2 className="text-xl font-semibold mb-3">Coffees</h2>
-      <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={handleAddNew}
+        className="mb-4 px-3 py-1 bg-beige-dark text-gray-800 rounded"
+      >
+        Add Coffee
+      </button>
+      {showForm && (
+        <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
         <input
           type="text"
           name="name"
@@ -170,16 +236,27 @@ function Coffee() {
           className="p-1 border rounded"
           required
         />
-        <label className="inline-flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="isRoasted"
-            checked={form.isRoasted}
-            onChange={handleChange}
-          />
-          Roasted
-        </label>
-        {form.isRoasted && (
+        <div className="flex gap-4">
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              name="isRoasted"
+              checked={!form.isRoasted}
+              onChange={() => setForm((prev) => ({ ...prev, isRoasted: false }))}
+            />
+            Green
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="radio"
+              name="isRoasted"
+              checked={form.isRoasted}
+              onChange={() => setForm((prev) => ({ ...prev, isRoasted: true }))}
+            />
+            Roasted
+          </label>
+        </div>
+        {form.isRoasted ? (
           <>
             <select
               name="roastLevel"
@@ -205,36 +282,62 @@ function Coffee() {
               required
             />
           </>
+        ) : (
+          <input
+            type="number"
+            name="purchasePrice"
+            value={form.purchasePrice}
+            onChange={handleChange}
+            placeholder="Purchase Price"
+            className="p-1 border rounded"
+            required
+            step="0.01"
+          />
         )}
-        <button
-          type="submit"
-          className="px-3 py-1 bg-beige-dark text-gray-800 rounded min-w-[64px]"
-        >
-          {editingIndex !== null ? 'Save' : 'Add'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="px-3 py-1 bg-beige-dark text-gray-800 rounded min-w-[64px]"
+          >
+            {editingIndex !== null ? 'Save' : 'Add'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setForm(initialForm);
+              setEditingIndex(null);
+              setShowForm(false);
+            }}
+            className="px-3 py-1 bg-gray-200 rounded min-w-[64px]"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
-      <table className="w-full border-collapse mb-8 text-sm">
-        <thead>
-          <tr className="bg-beige-dark">
-            <th className="border px-2 py-1 text-left">Name</th>
-            <th className="border px-2 py-1 text-left">Origin</th>
-            <th className="border px-2 py-1 text-left">Producer</th>
-            <th className="border px-2 py-1 text-left">Farm</th>
-            <th className="border px-2 py-1 text-left">Region</th>
-            <th className="border px-2 py-1 text-left">Process</th>
-            <th className="border px-2 py-1 text-left">Varietal</th>
-            <th className="border px-2 py-1 text-left">Altitude</th>
-            <th className="border px-2 py-1 text-left">Tasting Notes</th>
-            <th className="border px-2 py-1 text-left">Type</th>
-            <th className="border px-2 py-1 text-left">Roast Level</th>
-            <th className="border px-2 py-1 text-left">% Loss</th>
-            <th className="border px-2 py-1">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coffees.map((c, idx) => renderRow(c, idx))}
-        </tbody>
-      </table>
+      )}
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-full border-collapse mb-8 text-sm">
+          <thead>
+            <tr className="bg-beige-dark">
+              <th className="border px-2 py-1 text-left">Name</th>
+              <th className="border px-2 py-1 text-left">Origin</th>
+              <th className="border px-2 py-1 text-left">Producer</th>
+              <th className="border px-2 py-1 text-left">Farm</th>
+              <th className="border px-2 py-1 text-left">Region</th>
+              <th className="border px-2 py-1 text-left">Process</th>
+              <th className="border px-2 py-1 text-left">Varietal</th>
+              <th className="border px-2 py-1 text-left">Altitude</th>
+              <th className="border px-2 py-1 text-left">Tasting Notes</th>
+              <th className="border px-2 py-1 text-left">Type</th>
+              <th className="border px-2 py-1 text-left">Roast Level</th>
+              <th className="border px-2 py-1 text-left">% Loss</th>
+              <th className="border px-2 py-1 text-left">Purchase Price</th>
+              <th className="border px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>{coffees.map((c, idx) => renderRow(c, idx))}</tbody>
+        </table>
+      </div>
     </div>
   );
 }
