@@ -1,10 +1,20 @@
 import React from 'react';
-import { FaBox, FaChartLine, FaCog, FaFileInvoiceDollar } from 'react-icons/fa';
+import { FaBox, FaChartLine, FaCog, FaFileInvoiceDollar, FaCoffee } from 'react-icons/fa';
 
 function SideMenu({ current, onChange, className = '' }) {
   return (
     <nav className={`w-48 bg-beige-dark min-h-screen p-4 ${className}`}>
       <ul className="space-y-2">
+        <li>
+          <button
+            onClick={() => onChange('coffee')}
+            className={`block w-full text-left px-2 py-1 rounded ${current === 'coffee' ? 'bg-white' : ''}`}
+          >
+            <span className="inline-flex items-center gap-1">
+              <FaCoffee /> <span>Coffees</span>
+            </span>
+          </button>
+        </li>
         <li>
           <button
             onClick={() => onChange('inventory')}

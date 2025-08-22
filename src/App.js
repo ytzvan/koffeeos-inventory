@@ -7,6 +7,7 @@ import AccountSettings from './components/AccountSettings';
 import Dashboard from './components/Dashboard';
 import Billing from './components/Billing';
 import SideMenu from './components/SideMenu';
+import Coffee from './components/Coffee';
 
 function App() {
   const [view, setView] = useState('inventory');
@@ -14,6 +15,8 @@ function App() {
 
   const renderView = () => {
     switch (view) {
+      case 'coffee':
+        return <Coffee />;
       case 'dashboard':
         return <Dashboard />;
       case 'billing':
