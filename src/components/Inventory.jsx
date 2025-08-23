@@ -8,7 +8,13 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
       .filter((c) => c.isRoasted)
       .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
   );
-  const [greenForm, setGreenForm] = useState({ coffeeIndex: '', quantity: '', unit: 'kg' });
+  const [greenForm, setGreenForm] = useState({
+    coffeeIndex: '',
+    quantity: '',
+    unit: 'kg',
+  });
+  const [espressoForm, setEspressoForm] = useState({ coffeeIndex: '', quantity: '' });
+  const [espressoRefills, setEspressoRefills] = useState([]);
 
   const handleGreenChange = (e) => {
     const { name, value } = e.target;
@@ -23,6 +29,42 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
       { coffee, quantity: parseFloat(greenForm.quantity), unit: greenForm.unit },
     ]);
     setGreenForm({ coffeeIndex: '', quantity: '', unit: 'kg' });
+  };
+
+  const handleEspressoChange = (e) => {
+    const { name, value } = e.target;
+    setEspressoForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const addEspressoRefill = (e) => {
+    e.preventDefault();
+    const entry = roastedInventory[espressoForm.coffeeIndex];
+    if (!entry) return;
+    const qty = parseFloat(espressoForm.quantity);
+    if (isNaN(qty) || qty <= 0 || qty > entry.quantity) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) =>
+        i === parseInt(espressoForm.coffeeIndex, 10)
+          ? { ...r, quantity: r.quantity - qty }
+          : r
+      )
+    );
+    setEspressoRefills((prev) => [
+      ...prev,
+      { coffee: entry.coffee, quantity: qty, unit: entry.unit },
+    ]);
+    setEspressoForm({ coffeeIndex: '', quantity: '' });
+  };
+
+  const editRoasted = (index) => {
+    const entry = roastedInventory[index];
+    const qty = parseFloat(prompt('New quantity?', entry.quantity));
+    if (isNaN(qty) || qty < 0) return;
+    const unit = prompt('Unit? (kg/lbs)', entry.unit);
+    if (!unit) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, quantity: qty, unit } : r))
+    );
   };
 
   useEffect(() => {
@@ -75,15 +117,6 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
     );
   };
 
-  const createRoastForCoffee = (index) => {
-    const coffeeName = roastedInventory[index].coffee.name;
-    const greenIdx = greenInventory.findIndex(
-      (g) => g.coffee.name === coffeeName
-    );
-    if (greenIdx === -1) return;
-    createRoastFromGreen(greenIdx);
-  };
-
   const createBag = (index) => {
     const entry = roastedInventory[index];
     const bagWeight = parseFloat(prompt('Bag weight?'));
@@ -121,7 +154,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
       .reduce((sum, b) => sum + b.numBags, 0);
 
   return (
-    <div className="p-4 bg-white rounded shadow-md mb-6 w-full">
+    <div className="p-4 bg-white dark:bg-gray-800 dark:text-white rounded shadow-md mb-6 w-full">
       <h2 className="text-xl font-semibold mb-3 text-dark-green">Inventory</h2>
       <form onSubmit={addGreen} className="mb-4 flex flex-wrap gap-2 items-end">
         <select
@@ -220,10 +253,10 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
               <td className="border px-2 py-1 text-center space-x-2">
                 <button
                   type="button"
-                  onClick={() => createRoastForCoffee(idx)}
-                  className="text-dark-green underline"
+                  onClick={() => editRoasted(idx)}
+                  className="text-blue-600 underline"
                 >
-                  Create Roast
+                  Edit
                 </button>
                 <button
                   type="button"
@@ -238,6 +271,60 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
         </tbody>
       </table>
       </div>
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Espresso Refill</h3>
+      <form onSubmit={addEspressoRefill} className="mb-4 flex flex-wrap gap-2 items-end">
+        <select
+          name="coffeeIndex"
+          value={espressoForm.coffeeIndex}
+          onChange={handleEspressoChange}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Select Roasted Coffee
+          </option>
+          {roastedInventory.map((r, idx) => (
+            <option key={idx} value={idx}>
+              {r.coffee.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          name="quantity"
+          value={espressoForm.quantity}
+          onChange={handleEspressoChange}
+          placeholder="Quantity"
+          className="p-1 border rounded flex-1"
+          required
+        />
+        <button type="submit" className="px-3 py-1 bg-dark-green text-white rounded">
+          Use
+        </button>
+      </form>
+      {espressoRefills.length > 0 && (
+        <div className="overflow-x-auto w-full mb-8">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-dark-green text-white">
+                <th className="border px-2 py-1 text-left">Coffee</th>
+                <th className="border px-2 py-1 text-left">Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {espressoRefills.map((r, idx) => (
+                <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+                  <td className="border px-2 py-1">{r.coffee.name}</td>
+                  <td className="border px-2 py-1">
+                    {r.quantity} {r.unit}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -35,7 +35,9 @@ test('renders inventory section', () => {
 test('renders roasted section', () => {
   render(<App />);
   fireEvent.click(screen.getByText(/Inventory/i));
-  expect(screen.getByText(/Roasted Coffee/i)).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: /Roasted Coffee/i })
+  ).toBeInTheDocument();
 });
 
 test('renders quantity column', () => {
@@ -45,6 +47,7 @@ test('renders quantity column', () => {
 });
 
 test('renders dashboard charts headings', () => {
+  window.HTMLCanvasElement.prototype.getContext = () => ({});
   window.Chart = jest.fn(() => ({ destroy: jest.fn() }));
   render(<Dashboard />);
   expect(screen.getByText(/Total Sales by Week/i)).toBeInTheDocument();

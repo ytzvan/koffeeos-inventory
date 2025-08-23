@@ -8,6 +8,7 @@ import {
   FaChartBar,
   FaTools,
 } from 'react-icons/fa';
+import logo from '../koffeeos-logo.svg';
 
 const icons = {
   coffee: FaCoffee,
@@ -22,6 +23,9 @@ const icons = {
 function SideMenu({ current, onChange, modules, className = '' }) {
   return (
     <nav className={`w-48 bg-dark-green text-white min-h-screen p-4 ${className}`}>
+      <div className="mb-6 flex justify-center">
+        <img src={logo} alt="logo" className="w-24" />
+      </div>
       <ul className="space-y-2">
         {modules
           .filter((m) => m.enabled)

@@ -5,6 +5,7 @@ const providers = [
     farm: 'Finca La Esperanza',
     region: 'Huehuetenango',
     altitude: '1800m',
+    country: 'Guatemala',
   },
   {
     id: 'provider2',
@@ -12,6 +13,7 @@ const providers = [
     farm: 'Heirloom Farm',
     region: 'Yirgacheffe',
     altitude: '2000m',
+    country: 'Ethiopia',
   },
 ];
 

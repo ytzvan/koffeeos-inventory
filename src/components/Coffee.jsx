@@ -52,6 +52,7 @@ function Coffee({ coffees, setCoffees }) {
       farm: provider?.farm || '',
       region: provider?.region || '',
       altitude: provider?.altitude || '',
+      origins: provider ? [provider.country] : [],
     }));
   };
 
@@ -148,7 +149,7 @@ function Coffee({ coffees, setCoffees }) {
   );
 
   return (
-    <div className="p-4 bg-white rounded shadow-md mb-6 w-full">
+    <div className="p-4 bg-white dark:bg-gray-800 dark:text-white rounded shadow-md mb-6 w-full">
       <h2 className="text-xl font-semibold mb-3 text-dark-green">Coffees</h2>
       <button
         type="button"
@@ -194,7 +195,7 @@ function Coffee({ coffees, setCoffees }) {
           </option>
           {providers.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.name} - {p.farm}
+              {p.name} - {p.farm} ({p.country})
             </option>
           ))}
         </select>
