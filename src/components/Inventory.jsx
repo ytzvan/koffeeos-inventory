@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags, inventory, setInventory }) {
+function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags, espressoRefills, setEspressoRefills, inventory, setInventory }) {
   const [greenInventory, setGreenInventory] = useState([]);
   const [roastedInventory, setRoastedInventory] = useState(
     roastedCoffees.map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
@@ -12,7 +12,6 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
     unit: 'kg',
   });
   const [espressoForm, setEspressoForm] = useState({ coffeeIndex: '', quantity: '' });
-  const [espressoRefills, setEspressoRefills] = useState([]);
 
   const handleGreenChange = (e) => {
     const { name, value } = e.target;

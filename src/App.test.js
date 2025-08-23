@@ -1,6 +1,8 @@
+import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
 import Dashboard from './components/Dashboard';
+import Projections from './components/Projections';
 
 test('renders Visit Us link', () => {
   render(<App />);
@@ -70,4 +72,38 @@ test('renders dashboard charts headings', () => {
   render(<Dashboard />);
   expect(screen.getByText(/Total Sales by Week/i)).toBeInTheDocument();
   expect(screen.getByText(/Sales by Product Type/i)).toBeInTheDocument();
+});
+
+test('adds espresso projection', () => {
+  const refills = [
+    {
+      coffee: { name: 'Test Coffee', purchasePrice: '20' },
+      quantity: 1,
+      unit: 'kg',
+    },
+  ];
+
+  function Wrapper() {
+    const [espressoProjections, setEspressoProjections] = React.useState([]);
+    return (
+      <Projections
+        bags={[]}
+        espressoRefills={refills}
+        espressoProjections={espressoProjections}
+        setEspressoProjections={setEspressoProjections}
+      />
+    );
+  }
+
+  render(<Wrapper />);
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: '0' } });
+  fireEvent.change(screen.getByPlaceholderText(/Base Size/i), {
+    target: { value: '18' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Sale Price/i), {
+    target: { value: '2' },
+  });
+  fireEvent.click(screen.getByText(/Add Projection/i));
+  expect(screen.getByText('Test Coffee')).toBeInTheDocument();
+  expect(screen.getByText('55')).toBeInTheDocument();
 });

@@ -24,6 +24,8 @@ function App() {
   const [roastedCoffees, setRoastedCoffees] = useState(roastedCoffeeData);
   const [inventory, setInventory] = useState(inventoryData);
   const [bags, setBags] = useState([]);
+  const [espressoRefills, setEspressoRefills] = useState([]);
+  const [espressoProjections, setEspressoProjections] = useState([]);
   const [modules, setModules] = useState(modulesData);
   const [providers, setProviders] = useState(providersData);
   const [darkMode, setDarkMode] = useState(false);
@@ -93,7 +95,14 @@ function App() {
       case 'settings':
         return <AccountSettings />;
       case 'projections':
-        return <Projections bags={bags} />;
+        return (
+          <Projections
+            bags={bags}
+            espressoRefills={espressoRefills}
+            espressoProjections={espressoProjections}
+            setEspressoProjections={setEspressoProjections}
+          />
+        );
       case 'inventory':
         return (
           <Inventory
@@ -102,6 +111,8 @@ function App() {
             setRoastedCoffees={setRoastedCoffees}
             bags={bags}
             setBags={setBags}
+            espressoRefills={espressoRefills}
+            setEspressoRefills={setEspressoRefills}
             inventory={inventory}
             setInventory={setInventory}
           />
