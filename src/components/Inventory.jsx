@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function Inventory({ coffees, setCoffees, bags, setBags }) {
+function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags }) {
   const [greenInventory, setGreenInventory] = useState([]);
   const [roastedInventory, setRoastedInventory] = useState(
-    coffees
-      .filter((c) => c.isRoasted)
-      .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
+    roastedCoffees.map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
   );
   const [greenForm, setGreenForm] = useState({
     coffeeIndex: '',
@@ -23,7 +21,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
 
   const addGreen = (e) => {
     e.preventDefault();
-    const coffee = coffees[greenForm.coffeeIndex];
+    const coffee = greenCoffees[greenForm.coffeeIndex];
     setGreenInventory((prev) => [
       ...prev,
       { coffee, quantity: parseFloat(greenForm.quantity), unit: greenForm.unit },
@@ -69,19 +67,13 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
 
   useEffect(() => {
     setRoastedInventory((prev) => {
-      const keys = prev.map(
-        (r) => `${r.coffee.name}-${r.coffee.roastLevel || ''}`
-      );
-      const additions = coffees
-        .filter(
-          (c) =>
-            c.isRoasted &&
-            !keys.includes(`${c.name}-${c.roastLevel || ''}`)
-        )
+      const keys = prev.map((r) => `${r.coffee.name}-${r.coffee.roastLevel || ''}`);
+      const additions = roastedCoffees
+        .filter((c) => !keys.includes(`${c.name}-${c.roastLevel || ''}`))
         .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }));
       return [...prev, ...additions];
     });
-  }, [coffees]);
+  }, [roastedCoffees]);
 
   const createRoastFromGreen = (index) => {
     const entry = greenInventory[index];
@@ -112,7 +104,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
         roastLevel,
         loss: String(loss),
       });
-      setCoffees((prev) => [...prev, roastedCoffee]);
+      setRoastedCoffees((prev) => [...prev, roastedCoffee]);
       setRoastedInventory((prev) => [
         ...prev,
         { coffee: roastedCoffee, quantity: roastedQty, unit: entry.unit },
@@ -130,9 +122,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
     const costPrice = parseFloat(prompt('Cost price per bag?'));
     const retailPrice = parseFloat(prompt('Retail price per bag?'));
     if (
-      [bagWeight, numBags, costPrice, retailPrice].some((v) =>
-        isNaN(v)
-      )
+      [bagWeight, numBags, costPrice, retailPrice].some((v) => isNaN(v))
     )
       return;
     const totalWeight = bagWeight * numBags;
@@ -173,14 +163,11 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
           <option value="" disabled>
             Select Green Coffee
           </option>
-          {coffees
-            .map((c, idx) => ({ c, idx }))
-            .filter(({ c }) => !c.isRoasted)
-            .map(({ c, idx }) => (
-              <option key={idx} value={idx}>
-                {c.name}
-              </option>
-            ))}
+          {greenCoffees.map((c, idx) => (
+            <option key={idx} value={idx}>
+              {c.name}
+            </option>
+          ))}
         </select>
         <input
           type="number"
@@ -207,75 +194,75 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Green Coffee</h3>
       <div className="overflow-x-auto w-full mb-8">
-      <table className="min-w-full border-collapse text-sm">
-        <thead>
-          <tr className="bg-dark-green text-white">
-            <th className="border px-2 py-1 text-left">Coffee</th>
-            <th className="border px-2 py-1 text-left">Quantity</th>
-            <th className="border px-2 py-1">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {greenInventory.map((g, idx) => (
-            <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
-              <td className="border px-2 py-1">{g.coffee.name}</td>
-              <td className="border px-2 py-1">
-                {g.quantity} {g.unit}
-              </td>
-              <td className="border px-2 py-1 text-center">
-                <button
-                  type="button"
-                  onClick={() => createRoastFromGreen(idx)}
-                  className="text-dark-green underline"
-                >
-                  Create Roast
-                </button>
-              </td>
+        <table className="min-w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-dark-green text-white">
+              <th className="border px-2 py-1 text-left">Coffee</th>
+              <th className="border px-2 py-1 text-left">Quantity</th>
+              <th className="border px-2 py-1">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {greenInventory.map((g, idx) => (
+              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                <td className="border px-2 py-1">{g.coffee.name}</td>
+                <td className="border px-2 py-1">
+                  {g.quantity} {g.unit}
+                </td>
+                <td className="border px-2 py-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => createRoastFromGreen(idx)}
+                    className="text-dark-green underline"
+                  >
+                    Create Roast
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Roasted Coffee</h3>
       <div className="overflow-x-auto w-full">
-      <table className="min-w-full border-collapse mb-8 text-sm">
-        <thead>
-          <tr className="bg-dark-green text-white">
-            <th className="border px-2 py-1 text-left">Coffee</th>
-            <th className="border px-2 py-1 text-left">Quantity</th>
-            <th className="border px-2 py-1 text-left">Bags</th>
-            <th className="border px-2 py-1">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {roastedInventory.map((r, idx) => (
-            <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
-              <td className="border px-2 py-1">{r.coffee.name}</td>
-              <td className="border px-2 py-1">
-                {r.quantity} {r.unit}
-              </td>
-              <td className="border px-2 py-1">{getBagCount(r.coffee)}</td>
-              <td className="border px-2 py-1 text-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => editRoasted(idx)}
-                  className="text-blue-600 underline"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => createBag(idx)}
-                  className="text-dark-green underline"
-                >
-                  Create Bag
-                </button>
-              </td>
+        <table className="min-w-full border-collapse mb-8 text-sm">
+          <thead>
+            <tr className="bg-dark-green text-white">
+              <th className="border px-2 py-1 text-left">Coffee</th>
+              <th className="border px-2 py-1 text-left">Quantity</th>
+              <th className="border px-2 py-1 text-left">Bags</th>
+              <th className="border px-2 py-1">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {roastedInventory.map((r, idx) => (
+              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                <td className="border px-2 py-1">{r.coffee.name}</td>
+                <td className="border px-2 py-1">
+                  {r.quantity} {r.unit}
+                </td>
+                <td className="border px-2 py-1">{getBagCount(r.coffee)}</td>
+                <td className="border px-2 py-1 text-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => editRoasted(idx)}
+                    className="text-blue-600 underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => createBag(idx)}
+                    className="text-dark-green underline"
+                  >
+                    Create Bag
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Espresso Refill</h3>

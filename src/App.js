@@ -1,22 +1,24 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { AiOutlineMenu } from 'react-icons/ai';
-import { FaUserCircle, FaMoon, FaSun } from 'react-icons/fa';
+import { FaUserCircle, FaMoon, FaSun, FaBars } from 'react-icons/fa';
 import Inventory from './components/Inventory';
 import AccountSettings from './components/AccountSettings';
 import Dashboard from './components/Dashboard';
 import Billing from './components/Billing';
 import SideMenu from './components/SideMenu';
-import Coffee from './components/Coffee';
+import GreenCoffee from './components/GreenCoffee';
+import RoastedCoffee from './components/RoastedCoffee';
 import Projections from './components/Projections';
 import Management from './components/Management';
-import coffeeData from './models/coffeeData';
+import greenCoffeeData from './models/greenCoffeeData';
+import roastedCoffeeData from './models/roastedCoffeeData';
 import modulesData from './models/modules';
 
 function App() {
-  const [view, setView] = useState('coffee');
+  const [view, setView] = useState('greenCoffee');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [coffees, setCoffees] = useState(coffeeData);
+  const [greenCoffees, setGreenCoffees] = useState(greenCoffeeData);
+  const [roastedCoffees, setRoastedCoffees] = useState(roastedCoffeeData);
   const [bags, setBags] = useState([]);
   const [modules, setModules] = useState(modulesData);
   const [darkMode, setDarkMode] = useState(false);
@@ -36,8 +38,22 @@ function App() {
 
   const renderView = () => {
     switch (view) {
-      case 'coffee':
-        return <Coffee coffees={coffees} setCoffees={setCoffees} />;
+      case 'greenCoffee':
+        return (
+          <GreenCoffee
+            greenCoffees={greenCoffees}
+            setGreenCoffees={setGreenCoffees}
+            roastedCoffees={roastedCoffees}
+            setRoastedCoffees={setRoastedCoffees}
+          />
+        );
+      case 'roastedCoffee':
+        return (
+          <RoastedCoffee
+            roastedCoffees={roastedCoffees}
+            setRoastedCoffees={setRoastedCoffees}
+          />
+        );
       case 'dashboard':
         return <Dashboard />;
       case 'billing':
@@ -49,8 +65,9 @@ function App() {
       case 'inventory':
         return (
           <Inventory
-            coffees={coffees}
-            setCoffees={setCoffees}
+            greenCoffees={greenCoffees}
+            roastedCoffees={roastedCoffees}
+            setRoastedCoffees={setRoastedCoffees}
             bags={bags}
             setBags={setBags}
           />
@@ -58,7 +75,14 @@ function App() {
       case 'management':
         return <Management modules={modules} setModules={setModules} />;
       default:
-        return <Coffee coffees={coffees} setCoffees={setCoffees} />;
+      return (
+          <GreenCoffee
+            greenCoffees={greenCoffees}
+            setGreenCoffees={setGreenCoffees}
+            roastedCoffees={roastedCoffees}
+            setRoastedCoffees={setRoastedCoffees}
+          />
+        );
     }
   };
 
@@ -71,14 +95,20 @@ function App() {
           setView(v);
           setMenuOpen(false);
         }}
-        className={`fixed sm:static z-10 transform transition-transform ${menuOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`}
+        className={`fixed sm:static z-20 transform transition-transform ${menuOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`}
       />
-      <div className="flex-1 flex flex-col p-4">
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 sm:hidden z-10"
+          onClick={() => setMenuOpen(false)}
+        ></div>
+      )}
+      <div className="flex-1 flex flex-col p-4 z-0">
         <button
           className="sm:hidden mb-2 self-start"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          <AiOutlineMenu className="w-6 h-6" />
+          <FaBars className='w-6 h-6' />
         </button>
         <div className="flex justify-end items-center mb-4">
           <button
@@ -108,7 +138,13 @@ function App() {
             )}
           </div>
         </div>
-        <div className={`w-full ${view === 'coffee' || view === 'inventory' ? '' : 'max-w-4xl'} mx-auto text-center flex-1 flex flex-col items-center`}>
+        <div
+          className={`w-full ${
+            view === 'greenCoffee' || view === 'roastedCoffee' || view === 'inventory'
+              ? ''
+              : 'max-w-4xl'
+          } mx-auto text-center flex-1 flex flex-col items-center`}
+        >
           {renderView()}
           <a
             className="text-sm underline text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 mt-4"

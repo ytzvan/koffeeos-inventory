@@ -7,11 +7,13 @@ import {
   FaCoffee,
   FaChartBar,
   FaTools,
+  FaLeaf,
 } from 'react-icons/fa';
 import logo from '../koffeeos-logo.svg';
 
 const icons = {
-  coffee: FaCoffee,
+  greenCoffee: FaLeaf,
+  roastedCoffee: FaCoffee,
   inventory: FaBox,
   dashboard: FaChartLine,
   projections: FaChartBar,

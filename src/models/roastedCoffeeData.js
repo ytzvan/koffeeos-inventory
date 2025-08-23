@@ -1,20 +1,6 @@
-import Coffee from './coffee';
 import RoastedCoffee from './roastedCoffee';
 
-const coffeeData = [
-  new Coffee({
-    name: 'Guatemala Huehuetenango',
-    origins: ['Guatemala'],
-    providerId: 'provider1',
-    producer: 'Juan Perez',
-    farm: 'Finca La Esperanza',
-    region: 'Huehuetenango',
-    process: 'Washed',
-    varietal: 'Bourbon',
-    altitude: '1800m',
-    tastingNotes: 'Chocolate, Citrus',
-    purchasePrice: '5.00',
-  }),
+const roastedCoffeeData = [
   new RoastedCoffee({
     name: 'Ethiopia Yirgacheffe',
     origins: ['Ethiopia'],
@@ -32,4 +18,4 @@ const coffeeData = [
   }),
 ];
 
-export default coffeeData;
+export default roastedCoffeeData;

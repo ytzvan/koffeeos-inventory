@@ -26,6 +26,18 @@ test('renders billing menu', () => {
   expect(menuItem).toBeInTheDocument();
 });
 
+test('renders green coffee menu', () => {
+  render(<App />);
+  const items = screen.getAllByText(/Green Coffee/i);
+  expect(items.length).toBeGreaterThan(0);
+});
+
+test('renders roasted coffee menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Roasted Coffee/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
 test('renders inventory section', () => {
   render(<App />);
   fireEvent.click(screen.getByText(/Inventory/i));
