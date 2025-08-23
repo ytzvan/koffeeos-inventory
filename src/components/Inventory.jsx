@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import RoastedCoffee from '../models/roastedCoffee';
+import { useAppContext } from '../context/AppContext';
 
-function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags, espressoRefills, setEspressoRefills, inventory, setInventory }) {
+function Inventory() {
+  const {
+    greenCoffees,
+    roastedCoffees,
+    setRoastedCoffees,
+    bags,
+    setBags,
+    espressoRefills,
+    setEspressoRefills,
+    inventory,
+    setInventory,
+  } = useAppContext();
   const [greenInventory, setGreenInventory] = useState([]);
   const [roastedInventory, setRoastedInventory] = useState(
     roastedCoffees.map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))

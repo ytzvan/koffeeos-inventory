@@ -1,6 +1,8 @@
 import React from 'react';
+import { useAppContext } from '../context/AppContext';
 
-function Management({ modules, setModules }) {
+function Management() {
+  const { modules, setModules } = useAppContext();
   const toggleModule = (key) => {
     setModules((prev) =>
       prev.map((m) =>

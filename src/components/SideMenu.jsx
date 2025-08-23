@@ -9,8 +9,11 @@ import {
   FaTools,
   FaLeaf,
   FaHandshake,
+  FaCashRegister,
+  FaShoppingCart,
 } from 'react-icons/fa';
 import logo from '../koffeeos-logo.svg';
+import { useAppContext } from '../context/AppContext';
 
 const icons = {
   greenCoffee: FaLeaf,
@@ -22,9 +25,12 @@ const icons = {
   settings: FaCog,
   billing: FaFileInvoiceDollar,
   management: FaTools,
+  pos: FaCashRegister,
+  sales: FaShoppingCart,
 };
 
-function SideMenu({ current, onChange, modules, className = '' }) {
+function SideMenu({ current, onChange, className = '' }) {
+  const { modules } = useAppContext();
   return (
     <nav className={`w-48 bg-dark-green text-white min-h-screen p-4 ${className}`}>
       <div className="mb-6 flex justify-center">

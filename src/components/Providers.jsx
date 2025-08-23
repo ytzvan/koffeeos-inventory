@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import countries from '../models/countries';
+import { useAppContext } from '../context/AppContext';
 
-function Providers({ providers, setProviders }) {
+function Providers() {
+  const { providers, setProviders } = useAppContext();
   const initialForm = {
     name: '',
     farm: '',

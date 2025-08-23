@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
+import { useAppContext } from '../context/AppContext';
 
-function Projections({ bags, espressoRefills, espressoProjections, setEspressoProjections }) {
+function Projections() {
+  const {
+    bags,
+    espressoRefills,
+    espressoProjections,
+    setEspressoProjections,
+  } = useAppContext();
   const [form, setForm] = useState({ refillIndex: '', baseSize: '', salePrice: '' });
 
   const addEspressoProjection = (e) => {

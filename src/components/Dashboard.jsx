@@ -1,13 +1,11 @@
 import React from 'react';
 import WeeklySalesChart from './WeeklySalesChart';
 import ProductSalesPie from './ProductSalesPie';
+import { useAppContext } from '../context/AppContext';
 
-function Dashboard({
-  greenCoffees = [],
-  roastedCoffees = [],
-  inventory = { green: {}, roasted: {} },
-  bags = [],
-}) {
+function Dashboard() {
+  const { greenCoffees = [], roastedCoffees = [], inventory = { green: {}, roasted: {} }, bags = [] } =
+    useAppContext();
   const totalRevenue = bags.reduce(
     (sum, b) => sum + b.numBags * b.retailPrice,
     0

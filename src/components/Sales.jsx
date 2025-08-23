@@ -1,0 +1,95 @@
+import React, { useState } from 'react';
+import { useAppContext } from '../context/AppContext';
+
+function Sales() {
+  const { sales, setSales, bags, setBags } = useAppContext();
+  const [form, setForm] = useState({ bagIndex: '', quantity: '' });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const addSale = (e) => {
+    e.preventDefault();
+    const bag = bags[form.bagIndex];
+    const qty = parseInt(form.quantity, 10);
+    if (!bag || qty <= 0 || bag.numBags < qty) return;
+    setSales((prev) => [
+      ...prev,
+      { bag, quantity: qty, total: qty * bag.retailPrice },
+    ]);
+    setBags((prev) =>
+      prev.map((b, idx) =>
+        idx === parseInt(form.bagIndex, 10)
+          ? { ...b, numBags: b.numBags - qty }
+          : b
+      )
+    );
+    setForm({ bagIndex: '', quantity: '' });
+  };
+
+  return (
+    <div className="p-4 w-full">
+      <h2 className="text-xl font-semibold mb-4 text-dark-green">Sales</h2>
+      <form onSubmit={addSale} className="mb-4 flex flex-wrap gap-2 items-end">
+        <select
+          name="bagIndex"
+          value={form.bagIndex}
+          onChange={handleChange}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Select Bag
+          </option>
+          {bags.map((b, idx) => (
+            <option key={idx} value={idx}>
+              {b.coffee.name} {b.bagWeight}g ({b.numBags} available)
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          name="quantity"
+          value={form.quantity}
+          onChange={handleChange}
+          placeholder="Qty"
+          className="p-1 border rounded w-24"
+          required
+        />
+        <button
+          type="submit"
+          className="px-3 py-1 bg-dark-green text-white rounded"
+        >
+          Add Sale
+        </button>
+      </form>
+      {sales.length > 0 && (
+        <table className="min-w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-dark-green text-white">
+              <th className="border px-2 py-1 text-left">Coffee</th>
+              <th className="border px-2 py-1 text-left">Bag Weight</th>
+              <th className="border px-2 py-1 text-left">Qty</th>
+              <th className="border px-2 py-1 text-left">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sales.map((s, idx) => (
+              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                <td className="border px-2 py-1">{s.bag.coffee.name}</td>
+                <td className="border px-2 py-1">{s.bag.bagWeight}</td>
+                <td className="border px-2 py-1">{s.quantity}</td>
+                <td className="border px-2 py-1">{s.total.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+export default Sales;
+

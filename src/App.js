@@ -11,39 +11,19 @@ import RoastedCoffee from './components/RoastedCoffee';
 import Projections from './components/Projections';
 import Management from './components/Management';
 import Providers from './components/Providers';
-import greenCoffeeData from './models/greenCoffeeData';
-import roastedCoffeeData from './models/roastedCoffeeData';
-import modulesData from './models/modules';
-import providersData from './models/providers';
-import inventoryData from './models/inventory';
+import POS from './components/POS';
+import Sales from './components/Sales';
+import { useAppContext } from './context/AppContext';
 
 function App() {
+  const {
+    modules,
+    darkMode,
+    setDarkMode,
+  } = useAppContext();
   const [view, setView] = useState('greenCoffee');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [greenCoffees, setGreenCoffees] = useState(greenCoffeeData);
-  const [roastedCoffees, setRoastedCoffees] = useState(roastedCoffeeData);
-  const [inventory, setInventory] = useState(inventoryData);
-  const [bags, setBags] = useState([]);
-  const [espressoRefills, setEspressoRefills] = useState([]);
-  const [espressoProjections, setEspressoProjections] = useState([]);
-  const [modules, setModules] = useState(modulesData);
-  const [providers, setProviders] = useState(providersData);
-  const [darkMode, setDarkMode] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
-
-  useEffect(() => {
-    setInventory((prev) => {
-      const green = {};
-      greenCoffees.forEach((c) => {
-        green[c.id] = prev.green[c.id] || 0;
-      });
-      const roasted = {};
-      roastedCoffees.forEach((c) => {
-        roasted[c.id] = prev.roasted[c.id] || 0;
-      });
-      return { ...prev, green, roasted };
-    });
-  }, [greenCoffees, roastedCoffees]);
 
   useEffect(() => {
     const current = modules.find((m) => m.key === view);
@@ -60,81 +40,29 @@ function App() {
   const renderView = () => {
     switch (view) {
       case 'greenCoffee':
-        return (
-          <GreenCoffee
-            greenCoffees={greenCoffees}
-            setGreenCoffees={setGreenCoffees}
-            roastedCoffees={roastedCoffees}
-            setRoastedCoffees={setRoastedCoffees}
-            providers={providers}
-            inventory={inventory}
-            setInventory={setInventory}
-          />
-        );
+        return <GreenCoffee />;
       case 'roastedCoffee':
-        return (
-          <RoastedCoffee
-            roastedCoffees={roastedCoffees}
-            setRoastedCoffees={setRoastedCoffees}
-            providers={providers}
-            inventory={inventory}
-            setInventory={setInventory}
-          />
-        );
+        return <RoastedCoffee />;
       case 'dashboard':
-        return (
-          <Dashboard
-            greenCoffees={greenCoffees}
-            roastedCoffees={roastedCoffees}
-            inventory={inventory}
-            bags={bags}
-          />
-        );
+        return <Dashboard />;
       case 'billing':
         return <Billing />;
       case 'settings':
         return <AccountSettings />;
       case 'projections':
-        return (
-          <Projections
-            bags={bags}
-            espressoRefills={espressoRefills}
-            espressoProjections={espressoProjections}
-            setEspressoProjections={setEspressoProjections}
-          />
-        );
+        return <Projections />;
       case 'inventory':
-        return (
-          <Inventory
-            greenCoffees={greenCoffees}
-            roastedCoffees={roastedCoffees}
-            setRoastedCoffees={setRoastedCoffees}
-            bags={bags}
-            setBags={setBags}
-            espressoRefills={espressoRefills}
-            setEspressoRefills={setEspressoRefills}
-            inventory={inventory}
-            setInventory={setInventory}
-          />
-        );
+        return <Inventory />;
       case 'providers':
-        return (
-          <Providers providers={providers} setProviders={setProviders} />
-        );
+        return <Providers />;
       case 'management':
-        return <Management modules={modules} setModules={setModules} />;
+        return <Management />;
+      case 'pos':
+        return <POS />;
+      case 'sales':
+        return <Sales />;
       default:
-      return (
-          <GreenCoffee
-            greenCoffees={greenCoffees}
-            setGreenCoffees={setGreenCoffees}
-            roastedCoffees={roastedCoffees}
-            setRoastedCoffees={setRoastedCoffees}
-            providers={providers}
-            inventory={inventory}
-            setInventory={setInventory}
-          />
-        );
+        return <GreenCoffee />;
     }
   };
 
@@ -142,7 +70,6 @@ function App() {
     <div className="App min-h-screen flex relative bg-white dark:bg-gray-900 dark:text-white">
       <SideMenu
         current={view}
-        modules={modules}
         onChange={(v) => {
           setView(v);
           setMenuOpen(false);

@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import countries from '../models/countries';
 import RoastedCoffeeModel from '../models/roastedCoffee';
+import { useAppContext } from '../context/AppContext';
 
-function RoastedCoffee({
-  roastedCoffees,
-  setRoastedCoffees,
-  providers,
-  inventory,
-  setInventory,
-}) {
+function RoastedCoffee() {
+  const { roastedCoffees, setRoastedCoffees, providers, inventory, setInventory } =
+    useAppContext();
   const initialForm = {
     name: '',
     origins: [],
