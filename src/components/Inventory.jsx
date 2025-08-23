@@ -22,10 +22,19 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
   const addGreen = (e) => {
     e.preventDefault();
     const coffee = greenCoffees[greenForm.coffeeIndex];
+    const qty = parseFloat(greenForm.quantity);
+    const qtyKg = greenForm.unit === 'kg' ? qty : qty * 0.453592;
     setGreenInventory((prev) => [
       ...prev,
-      { coffee, quantity: parseFloat(greenForm.quantity), unit: greenForm.unit },
+      { coffee, quantity: qty, unit: greenForm.unit },
     ]);
+    setInventory((prev) => ({
+      ...prev,
+      green: {
+        ...prev.green,
+        [coffee.id]: (prev.green[coffee.id] || 0) + qtyKg,
+      },
+    }));
     setGreenForm({ coffeeIndex: '', quantity: '', unit: 'kg' });
   };
 
@@ -89,6 +98,8 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
     )
       return;
     const roastedQty = batch * (1 - loss / 100);
+    const batchKg = entry.unit === 'kg' ? batch : batch * 0.453592;
+    const roastedKg = entry.unit === 'kg' ? roastedQty : roastedQty * 0.453592;
     const existingIdx = roastedInventory.findIndex(
       (r) => r.coffee.name === entry.coffee.name && r.coffee.roastLevel === roastLevel
     );
@@ -103,6 +114,7 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
         ...entry.coffee,
         roastLevel,
         loss: String(loss),
+        purchasePrice: entry.coffee.purchasePrice,
       });
       setRoastedCoffees((prev) => [...prev, roastedCoffee]);
       setRoastedInventory((prev) => [
@@ -113,6 +125,22 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
     setGreenInventory((prev) =>
       prev.map((g, i) => (i === index ? { ...g, quantity: g.quantity - batch } : g))
     );
+    setInventory((prev) => {
+      const greenQty = (prev.green[entry.coffee.id] || 0) - batchKg;
+      const roastedQtyPrev = prev.roasted[entry.coffee.id] || 0;
+      const roastedQtyNew = roastedQtyPrev + roastedKg;
+      return {
+        ...prev,
+        green: {
+          ...prev.green,
+          [entry.coffee.id]: parseFloat(greenQty.toFixed(2)),
+        },
+        roasted: {
+          ...prev.roasted,
+          [entry.coffee.id]: parseFloat(roastedQtyNew.toFixed(2)),
+        },
+      };
+    });
   };
 
   const [bagForm, setBagForm] = useState(null);
@@ -167,6 +195,15 @@ function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setB
         i === bagForm.index ? { ...r, quantity: parseFloat(newQty.toFixed(2)) } : r
       )
     );
+    setInventory((prev) => ({
+      ...prev,
+      roasted: {
+        ...prev.roasted,
+        [entry.coffee.id]: parseFloat(
+          ((prev.roasted[entry.coffee.id] || 0) - totalGrams / 1000).toFixed(2)
+        ),
+      },
+    }));
     setBags((prev) => [
       ...prev,
       {

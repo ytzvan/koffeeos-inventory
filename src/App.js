@@ -80,7 +80,14 @@ function App() {
           />
         );
       case 'dashboard':
-        return <Dashboard />;
+        return (
+          <Dashboard
+            greenCoffees={greenCoffees}
+            roastedCoffees={roastedCoffees}
+            inventory={inventory}
+            bags={bags}
+          />
+        );
       case 'billing':
         return <Billing />;
       case 'settings':

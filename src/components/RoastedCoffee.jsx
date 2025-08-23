@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import countries from '../models/countries';
 import RoastedCoffeeModel from '../models/roastedCoffee';
 
-function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory, setInventory }) {
+function RoastedCoffee({
+  roastedCoffees,
+  setRoastedCoffees,
+  providers,
+  inventory,
+  setInventory,
+}) {
   const initialForm = {
     name: '',
     origins: [],
@@ -22,6 +28,13 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory
   const [form, setForm] = useState(initialForm);
   const [editingIndex, setEditingIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, isError = false) => {
+    setToast({ message, isError });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,21 +62,26 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const updated = new RoastedCoffeeModel(form);
-    if (editingIndex !== null) {
-      setRoastedCoffees((prev) =>
-        prev.map((c, i) => (i === editingIndex ? updated : c))
-      );
-    } else {
-      setRoastedCoffees((prev) => [...prev, updated]);
+    try {
+      const updated = new RoastedCoffeeModel(form);
+      if (editingIndex !== null) {
+        setRoastedCoffees((prev) =>
+          prev.map((c, i) => (i === editingIndex ? updated : c))
+        );
+      } else {
+        setRoastedCoffees((prev) => [...prev, updated]);
+      }
+      setInventory((prev) => ({
+        ...prev,
+        roasted: { ...prev.roasted, [updated.id]: prev.roasted[updated.id] || 0 },
+      }));
+      setForm(initialForm);
+      setEditingIndex(null);
+      setShowForm(false);
+      showToast('Coffee saved');
+    } catch (err) {
+      showToast('Error saving coffee', true);
     }
-    setInventory((prev) => ({
-      ...prev,
-      roasted: { ...prev.roasted, [updated.id]: prev.roasted[updated.id] || 0 },
-    }));
-    setForm(initialForm);
-    setEditingIndex(null);
-    setShowForm(false);
   };
 
   const handleEdit = (idx) => {
@@ -296,6 +314,13 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory
         </form>
       )}
       <div className="overflow-x-auto w-full">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search..."
+          className="p-1 border rounded mb-2"
+        />
         <table className="min-w-full border-collapse mb-8 text-sm">
           <thead>
             <tr className="bg-dark-green text-white">
@@ -315,9 +340,24 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory
               <th className="border px-2 py-1">Actions</th>
             </tr>
           </thead>
-          <tbody>{roastedCoffees.map((c, idx) => renderRow(c, idx))}</tbody>
+          <tbody>
+            {roastedCoffees
+              .filter((c) =>
+                c.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((c, idx) => renderRow(c, idx))}
+          </tbody>
         </table>
       </div>
+      {toast && (
+        <div
+          className={`fixed bottom-4 right-4 px-4 py-2 rounded shadow-md text-white ${
+            toast.isError ? 'bg-red-500' : 'bg-green-500'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }

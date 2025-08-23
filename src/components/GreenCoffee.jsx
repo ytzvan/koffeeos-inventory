@@ -29,6 +29,13 @@ function GreenCoffee({
   const [form, setForm] = useState(initialForm);
   const [editingIndex, setEditingIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, isError = false) => {
+    setToast({ message, isError });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,21 +63,26 @@ function GreenCoffee({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newCoffee = new CoffeeModel({ ...form, isRoasted: false });
-    if (editingIndex !== null) {
-      setGreenCoffees((prev) =>
-        prev.map((c, i) => (i === editingIndex ? newCoffee : c))
-      );
-    } else {
-      setGreenCoffees((prev) => [...prev, newCoffee]);
+    try {
+      const newCoffee = new CoffeeModel({ ...form, isRoasted: false });
+      if (editingIndex !== null) {
+        setGreenCoffees((prev) =>
+          prev.map((c, i) => (i === editingIndex ? newCoffee : c))
+        );
+      } else {
+        setGreenCoffees((prev) => [...prev, newCoffee]);
+      }
+      setInventory((prev) => ({
+        ...prev,
+        green: { ...prev.green, [newCoffee.id]: prev.green[newCoffee.id] || 0 },
+      }));
+      setForm(initialForm);
+      setEditingIndex(null);
+      setShowForm(false);
+      showToast('Coffee saved');
+    } catch (err) {
+      showToast('Error saving coffee', true);
     }
-    setInventory((prev) => ({
-      ...prev,
-      green: { ...prev.green, [newCoffee.id]: prev.green[newCoffee.id] || 0 },
-    }));
-    setForm(initialForm);
-    setEditingIndex(null);
-    setShowForm(false);
   };
 
   const handleEdit = (idx) => {
@@ -98,19 +110,19 @@ function GreenCoffee({
     const green = greenCoffees[idx];
     const roastLevel = prompt('Roast level? (Light/Medium/Dark)');
     const loss = prompt('Percent weight loss?');
-    const purchasePrice = prompt('Purchase price?');
-    if (!roastLevel || !loss || !purchasePrice) return;
+    if (!roastLevel || !loss) return;
     const roasted = new RoastedCoffee({
       ...green,
       roastLevel,
       loss,
-      purchasePrice,
+      purchasePrice: green.purchasePrice,
     });
     setRoastedCoffees((prev) => [...prev, roasted]);
     setInventory((prev) => ({
       ...prev,
       roasted: { ...prev.roasted, [roasted.id]: prev.roasted[roasted.id] || 0 },
     }));
+    showToast('Roast created');
   };
 
   const handleAddNew = () => {
@@ -304,6 +316,13 @@ function GreenCoffee({
         </form>
       )}
       <div className="overflow-x-auto w-full">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search..."
+          className="p-1 border rounded mb-2"
+        />
         <table className="min-w-full border-collapse mb-8 text-sm">
           <thead>
             <tr className="bg-dark-green text-white">
@@ -321,9 +340,24 @@ function GreenCoffee({
               <th className="border px-2 py-1">Actions</th>
             </tr>
           </thead>
-          <tbody>{greenCoffees.map((c, idx) => renderRow(c, idx))}</tbody>
+          <tbody>
+            {greenCoffees
+              .filter((c) =>
+                c.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((c, idx) => renderRow(c, idx))}
+          </tbody>
         </table>
       </div>
+      {toast && (
+        <div
+          className={`fixed bottom-4 right-4 px-4 py-2 rounded shadow-md text-white ${
+            toast.isError ? 'bg-red-500' : 'bg-green-500'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
