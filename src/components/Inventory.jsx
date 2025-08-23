@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RoastedCoffee from '../models/roastedCoffee';
 
 function Inventory({ coffees, setCoffees, bags, setBags }) {
   const [greenInventory, setGreenInventory] = useState([]);
-  const [roastedInventory, setRoastedInventory] = useState([]);
+  const [roastedInventory, setRoastedInventory] = useState(
+    coffees
+      .filter((c) => c.isRoasted)
+      .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
+  );
   const [greenForm, setGreenForm] = useState({ coffeeIndex: '', quantity: '', unit: 'kg' });
 
   const handleGreenChange = (e) => {
@@ -21,7 +25,17 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
     setGreenForm({ coffeeIndex: '', quantity: '', unit: 'kg' });
   };
 
-  const createRoast = (index) => {
+  useEffect(() => {
+    setRoastedInventory((prev) => {
+      const names = prev.map((r) => r.coffee.name);
+      const additions = coffees
+        .filter((c) => c.isRoasted && !names.includes(c.name))
+        .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }));
+      return [...prev, ...additions];
+    });
+  }, [coffees]);
+
+  const createRoastFromGreen = (index) => {
     const entry = greenInventory[index];
     const batch = parseFloat(prompt('Green coffee quantity to roast?'));
     const roastLevel = prompt('Roast level? (Light/Medium/Dark)');
@@ -35,21 +49,39 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
     )
       return;
     const roastedQty = batch * (1 - loss / 100);
-    const roastedCoffee = new RoastedCoffee({
-      ...entry.coffee,
-      roastLevel,
-      loss: String(loss),
-    });
-    setCoffees((prev) => [...prev, roastedCoffee]);
-    setRoastedInventory((prev) => [
-      ...prev,
-      { coffee: roastedCoffee, quantity: roastedQty, unit: entry.unit },
-    ]);
-    setGreenInventory((prev) =>
-      prev.map((g, i) =>
-        i === index ? { ...g, quantity: g.quantity - batch } : g
-      )
+    const existingIdx = roastedInventory.findIndex(
+      (r) => r.coffee.name === entry.coffee.name && r.coffee.roastLevel === roastLevel
     );
+    if (existingIdx !== -1) {
+      setRoastedInventory((prev) =>
+        prev.map((r, i) =>
+          i === existingIdx ? { ...r, quantity: r.quantity + roastedQty } : r
+        )
+      );
+    } else {
+      const roastedCoffee = new RoastedCoffee({
+        ...entry.coffee,
+        roastLevel,
+        loss: String(loss),
+      });
+      setCoffees((prev) => [...prev, roastedCoffee]);
+      setRoastedInventory((prev) => [
+        ...prev,
+        { coffee: roastedCoffee, quantity: roastedQty, unit: entry.unit },
+      ]);
+    }
+    setGreenInventory((prev) =>
+      prev.map((g, i) => (i === index ? { ...g, quantity: g.quantity - batch } : g))
+    );
+  };
+
+  const createRoastForCoffee = (index) => {
+    const coffeeName = roastedInventory[index].coffee.name;
+    const greenIdx = greenInventory.findIndex(
+      (g) => g.coffee.name === coffeeName
+    );
+    if (greenIdx === -1) return;
+    createRoastFromGreen(greenIdx);
   };
 
   const createBag = (index) => {
@@ -82,6 +114,11 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
       },
     ]);
   };
+
+  const getBagCount = (coffee) =>
+    bags
+      .filter((b) => b.coffee.name === coffee.name)
+      .reduce((sum, b) => sum + b.numBags, 0);
 
   return (
     <div className="p-4 bg-white rounded shadow-md mb-6 w-full">
@@ -130,7 +167,8 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
       </form>
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Green Coffee</h3>
-      <table className="w-full border-collapse mb-8 text-sm">
+      <div className="overflow-x-auto w-full mb-8">
+      <table className="min-w-full border-collapse text-sm">
         <thead>
           <tr className="bg-dark-green text-white">
             <th className="border px-2 py-1 text-left">Coffee</th>
@@ -148,7 +186,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
               <td className="border px-2 py-1 text-center">
                 <button
                   type="button"
-                  onClick={() => createRoast(idx)}
+                  onClick={() => createRoastFromGreen(idx)}
                   className="text-dark-green underline"
                 >
                   Create Roast
@@ -158,13 +196,16 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
           ))}
         </tbody>
       </table>
+      </div>
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Roasted Coffee</h3>
-      <table className="w-full border-collapse mb-8 text-sm">
+      <div className="overflow-x-auto w-full">
+      <table className="min-w-full border-collapse mb-8 text-sm">
         <thead>
           <tr className="bg-dark-green text-white">
             <th className="border px-2 py-1 text-left">Coffee</th>
             <th className="border px-2 py-1 text-left">Quantity</th>
+            <th className="border px-2 py-1 text-left">Bags</th>
             <th className="border px-2 py-1">Actions</th>
           </tr>
         </thead>
@@ -175,7 +216,15 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
               <td className="border px-2 py-1">
                 {r.quantity} {r.unit}
               </td>
-              <td className="border px-2 py-1 text-center">
+              <td className="border px-2 py-1">{getBagCount(r.coffee)}</td>
+              <td className="border px-2 py-1 text-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => createRoastForCoffee(idx)}
+                  className="text-dark-green underline"
+                >
+                  Create Roast
+                </button>
                 <button
                   type="button"
                   onClick={() => createBag(idx)}
@@ -188,6 +237,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import logo from './koffeeos-logo.svg';
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
 import Inventory from './components/Inventory';
 import AccountSettings from './components/AccountSettings';
@@ -9,13 +9,24 @@ import Billing from './components/Billing';
 import SideMenu from './components/SideMenu';
 import Coffee from './components/Coffee';
 import Projections from './components/Projections';
+import Management from './components/Management';
 import coffeeData from './models/coffeeData';
+import modulesData from './models/modules';
 
 function App() {
-  const [view, setView] = useState('inventory');
+  const [view, setView] = useState('coffee');
   const [menuOpen, setMenuOpen] = useState(false);
   const [coffees, setCoffees] = useState(coffeeData);
   const [bags, setBags] = useState([]);
+  const [modules, setModules] = useState(modulesData);
+
+  useEffect(() => {
+    const current = modules.find((m) => m.key === view);
+    if (!current || !current.enabled) {
+      const first = modules.find((m) => m.enabled);
+      if (first) setView(first.key);
+    }
+  }, [modules, view]);
 
   const renderView = () => {
     switch (view) {
@@ -30,7 +41,6 @@ function App() {
       case 'projections':
         return <Projections bags={bags} />;
       case 'inventory':
-      default:
         return (
           <Inventory
             coffees={coffees}
@@ -39,19 +49,24 @@ function App() {
             setBags={setBags}
           />
         );
+      case 'management':
+        return <Management modules={modules} setModules={setModules} />;
+      default:
+        return <Coffee coffees={coffees} setCoffees={setCoffees} />;
     }
   };
 
   return (
     <div className="App min-h-screen flex relative">
-      <SideMenu
-        current={view}
-        onChange={(v) => {
-          setView(v);
-          setMenuOpen(false);
-        }}
-        className={`fixed sm:static z-10 transform transition-transform ${menuOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`}
-      />
+        <SideMenu
+          current={view}
+          modules={modules}
+          onChange={(v) => {
+            setView(v);
+            setMenuOpen(false);
+          }}
+          className={`fixed sm:static z-10 transform transition-transform ${menuOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0`}
+        />
       <div className="flex-1 flex flex-col items-center p-4">
         <button
           className="sm:hidden mb-2 self-start"
@@ -59,7 +74,7 @@ function App() {
         >
           <AiOutlineMenu className="w-6 h-6" />
         </button>
-        <header className={`w-full ${view === 'coffee' ? '' : 'max-w-4xl'} text-center`}>
+          <header className={`w-full ${(view === 'coffee' || view === 'inventory') ? '' : 'max-w-4xl'} text-center`}>
           <img src={logo} className="w-24 mx-auto mb-4" alt="logo" />
           {renderView()}
           <a

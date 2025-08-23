@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
 import Dashboard from './components/Dashboard';
 
@@ -28,20 +28,20 @@ test('renders billing menu', () => {
 
 test('renders inventory section', () => {
   render(<App />);
-  const headers = screen.getAllByText(/Green Coffee/i);
-  expect(headers[0]).toBeInTheDocument();
+  fireEvent.click(screen.getByText(/Inventory/i));
+  expect(screen.getByRole('heading', { name: /Green Coffee/i })).toBeInTheDocument();
 });
 
 test('renders roasted section', () => {
   render(<App />);
-  const roastedHeader = screen.getByText(/Roasted Coffee/i);
-  expect(roastedHeader).toBeInTheDocument();
+  fireEvent.click(screen.getByText(/Inventory/i));
+  expect(screen.getByText(/Roasted Coffee/i)).toBeInTheDocument();
 });
 
 test('renders quantity column', () => {
   render(<App />);
-  const columnHeader = screen.getAllByText(/Quantity/i)[0];
-  expect(columnHeader).toBeInTheDocument();
+  fireEvent.click(screen.getByText(/Inventory/i));
+  expect(screen.getAllByText(/Quantity/i)[0]).toBeInTheDocument();
 });
 
 test('renders dashboard charts headings', () => {
