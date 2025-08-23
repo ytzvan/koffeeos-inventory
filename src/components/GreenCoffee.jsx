@@ -3,7 +3,15 @@ import countries from '../models/countries';
 import CoffeeModel from '../models/coffee';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoastedCoffees, providers }) {
+function GreenCoffee({
+  greenCoffees,
+  setGreenCoffees,
+  roastedCoffees,
+  setRoastedCoffees,
+  providers,
+  inventory,
+  setInventory,
+}) {
   const initialForm = {
     name: '',
     origins: [],
@@ -56,6 +64,10 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
     } else {
       setGreenCoffees((prev) => [...prev, newCoffee]);
     }
+    setInventory((prev) => ({
+      ...prev,
+      green: { ...prev.green, [newCoffee.id]: prev.green[newCoffee.id] || 0 },
+    }));
     setForm(initialForm);
     setEditingIndex(null);
     setShowForm(false);
@@ -68,7 +80,13 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
   };
 
   const handleDelete = (idx) => {
+    const coffee = greenCoffees[idx];
     setGreenCoffees((prev) => prev.filter((_, i) => i !== idx));
+    setInventory((prev) => {
+      const g = { ...prev.green };
+      delete g[coffee.id];
+      return { ...prev, green: g };
+    });
     if (editingIndex === idx) {
       setForm(initialForm);
       setEditingIndex(null);
@@ -89,6 +107,10 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
       purchasePrice,
     });
     setRoastedCoffees((prev) => [...prev, roasted]);
+    setInventory((prev) => ({
+      ...prev,
+      roasted: { ...prev.roasted, [roasted.id]: prev.roasted[roasted.id] || 0 },
+    }));
   };
 
   const handleAddNew = () => {
@@ -98,7 +120,7 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
   };
 
   const renderRow = (coffee, idx) => (
-    <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+    <tr key={coffee.id} className="odd:bg-dark-green/5 even:bg-white">
       <td className="border px-2 py-1">{coffee.name}</td>
       <td className="border px-2 py-1">{coffee.origins.join(', ')}</td>
       <td className="border px-2 py-1">{coffee.producer}</td>
@@ -108,6 +130,7 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
       <td className="border px-2 py-1">{coffee.varietal}</td>
       <td className="border px-2 py-1">{coffee.altitude}</td>
       <td className="border px-2 py-1">{coffee.tastingNotes}</td>
+      <td className="border px-2 py-1">{inventory.green[coffee.id] || 0}</td>
       <td className="border px-2 py-1">{coffee.purchasePrice}</td>
       <td className="border px-2 py-1 text-center">
         <button
@@ -293,6 +316,7 @@ function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoasted
               <th className="border px-2 py-1 text-left">Varietal</th>
               <th className="border px-2 py-1 text-left">Altitude</th>
               <th className="border px-2 py-1 text-left">Tasting Notes</th>
+              <th className="border px-2 py-1 text-left">Available (kg)</th>
               <th className="border px-2 py-1 text-left">Purchase Price</th>
               <th className="border px-2 py-1">Actions</th>
             </tr>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags }) {
+function Inventory({ greenCoffees, roastedCoffees, setRoastedCoffees, bags, setBags, inventory, setInventory }) {
   const [greenInventory, setGreenInventory] = useState([]);
   const [roastedInventory, setRoastedInventory] = useState(
     roastedCoffees.map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))

@@ -1,5 +1,8 @@
+const generateId = () => Math.random().toString(36).substring(2, 11);
+
 class Coffee {
   constructor({
+    id = generateId(),
     name = '',
     origins = [],
     providerId = '',
@@ -14,6 +17,7 @@ class Coffee {
     purchasePrice = '',
   } = {}) {
     Object.assign(this, {
+      id,
       name,
       origins,
       providerId,

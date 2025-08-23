@@ -15,17 +15,33 @@ import greenCoffeeData from './models/greenCoffeeData';
 import roastedCoffeeData from './models/roastedCoffeeData';
 import modulesData from './models/modules';
 import providersData from './models/providers';
+import inventoryData from './models/inventory';
 
 function App() {
   const [view, setView] = useState('greenCoffee');
   const [menuOpen, setMenuOpen] = useState(false);
   const [greenCoffees, setGreenCoffees] = useState(greenCoffeeData);
   const [roastedCoffees, setRoastedCoffees] = useState(roastedCoffeeData);
+  const [inventory, setInventory] = useState(inventoryData);
   const [bags, setBags] = useState([]);
   const [modules, setModules] = useState(modulesData);
   const [providers, setProviders] = useState(providersData);
   const [darkMode, setDarkMode] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
+
+  useEffect(() => {
+    setInventory((prev) => {
+      const green = {};
+      greenCoffees.forEach((c) => {
+        green[c.id] = prev.green[c.id] || 0;
+      });
+      const roasted = {};
+      roastedCoffees.forEach((c) => {
+        roasted[c.id] = prev.roasted[c.id] || 0;
+      });
+      return { ...prev, green, roasted };
+    });
+  }, [greenCoffees, roastedCoffees]);
 
   useEffect(() => {
     const current = modules.find((m) => m.key === view);
@@ -49,6 +65,8 @@ function App() {
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
             providers={providers}
+            inventory={inventory}
+            setInventory={setInventory}
           />
         );
       case 'roastedCoffee':
@@ -57,6 +75,8 @@ function App() {
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
             providers={providers}
+            inventory={inventory}
+            setInventory={setInventory}
           />
         );
       case 'dashboard':
@@ -75,6 +95,8 @@ function App() {
             setRoastedCoffees={setRoastedCoffees}
             bags={bags}
             setBags={setBags}
+            inventory={inventory}
+            setInventory={setInventory}
           />
         );
       case 'providers':
@@ -91,6 +113,8 @@ function App() {
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
             providers={providers}
+            inventory={inventory}
+            setInventory={setInventory}
           />
         );
     }

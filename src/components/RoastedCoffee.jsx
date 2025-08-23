@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import countries from '../models/countries';
 import RoastedCoffeeModel from '../models/roastedCoffee';
 
-function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
+function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers, inventory, setInventory }) {
   const initialForm = {
     name: '',
     origins: [],
@@ -50,9 +50,17 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const updated = new RoastedCoffeeModel(form);
-    setRoastedCoffees((prev) =>
-      prev.map((c, i) => (i === editingIndex ? updated : c))
-    );
+    if (editingIndex !== null) {
+      setRoastedCoffees((prev) =>
+        prev.map((c, i) => (i === editingIndex ? updated : c))
+      );
+    } else {
+      setRoastedCoffees((prev) => [...prev, updated]);
+    }
+    setInventory((prev) => ({
+      ...prev,
+      roasted: { ...prev.roasted, [updated.id]: prev.roasted[updated.id] || 0 },
+    }));
     setForm(initialForm);
     setEditingIndex(null);
     setShowForm(false);
@@ -65,7 +73,13 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
   };
 
   const handleDelete = (idx) => {
+    const coffee = roastedCoffees[idx];
     setRoastedCoffees((prev) => prev.filter((_, i) => i !== idx));
+    setInventory((prev) => {
+      const r = { ...prev.roasted };
+      delete r[coffee.id];
+      return { ...prev, roasted: r };
+    });
     if (editingIndex === idx) {
       setForm(initialForm);
       setEditingIndex(null);
@@ -74,7 +88,7 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
   };
 
   const renderRow = (coffee, idx) => (
-    <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+    <tr key={coffee.id} className="odd:bg-dark-green/5 even:bg-white">
       <td className="border px-2 py-1">{coffee.name}</td>
       <td className="border px-2 py-1">{coffee.origins.join(', ')}</td>
       <td className="border px-2 py-1">{coffee.producer}</td>
@@ -86,6 +100,7 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
       <td className="border px-2 py-1">{coffee.tastingNotes}</td>
       <td className="border px-2 py-1">{coffee.roastLevel}</td>
       <td className="border px-2 py-1">{coffee.loss}</td>
+      <td className="border px-2 py-1">{inventory.roasted[coffee.id] || 0}</td>
       <td className="border px-2 py-1">{coffee.purchasePrice}</td>
       <td className="border px-2 py-1 text-center">
         <button
@@ -106,9 +121,22 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
     </tr>
   );
 
+  const handleAddNew = () => {
+    setForm(initialForm);
+    setEditingIndex(null);
+    setShowForm(true);
+  };
+
   return (
     <div className="p-4 bg-white dark:bg-gray-800 dark:text-white rounded shadow-md mb-6 w-full">
       <h2 className="text-xl font-semibold mb-3 text-dark-green">Roasted Coffee</h2>
+      <button
+        type="button"
+        onClick={handleAddNew}
+        className="mb-4 px-3 py-1 bg-dark-green text-white rounded"
+      >
+        Add Roasted Coffee
+      </button>
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2">
           <input
@@ -282,6 +310,7 @@ function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
               <th className="border px-2 py-1 text-left">Tasting Notes</th>
               <th className="border px-2 py-1 text-left">Roast Level</th>
               <th className="border px-2 py-1 text-left">% Loss</th>
+              <th className="border px-2 py-1 text-left">Available (kg)</th>
               <th className="border px-2 py-1 text-left">Purchase Price</th>
               <th className="border px-2 py-1">Actions</th>
             </tr>
