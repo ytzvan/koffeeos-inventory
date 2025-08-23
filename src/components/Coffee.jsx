@@ -106,7 +106,7 @@ function Coffee({ coffees, setCoffees }) {
   };
 
   const renderRow = (coffee, idx) => (
-    <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+    <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
       <td className="border px-2 py-1">{coffee.name}</td>
       <td className="border px-2 py-1">{coffee.origins.join(', ')}</td>
       <td className="border px-2 py-1">{coffee.producer}</td>

@@ -22,7 +22,7 @@ function Management({ modules, setModules }) {
           </thead>
           <tbody>
             {modules.map((m) => (
-              <tr key={m.key} className="odd:bg-white even:bg-dark-green/5">
+              <tr key={m.key} className="odd:bg-dark-green/5 even:bg-white">
                 <td className="border px-2 py-1">{m.name}</td>
                 <td className="border px-2 py-1 text-center">
                   <input

@@ -69,9 +69,15 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
 
   useEffect(() => {
     setRoastedInventory((prev) => {
-      const names = prev.map((r) => r.coffee.name);
+      const keys = prev.map(
+        (r) => `${r.coffee.name}-${r.coffee.roastLevel || ''}`
+      );
       const additions = coffees
-        .filter((c) => c.isRoasted && !names.includes(c.name))
+        .filter(
+          (c) =>
+            c.isRoasted &&
+            !keys.includes(`${c.name}-${c.roastLevel || ''}`)
+        )
         .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }));
       return [...prev, ...additions];
     });
@@ -211,7 +217,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
         </thead>
         <tbody>
           {greenInventory.map((g, idx) => (
-            <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+            <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
               <td className="border px-2 py-1">{g.coffee.name}</td>
               <td className="border px-2 py-1">
                 {g.quantity} {g.unit}
@@ -244,7 +250,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
         </thead>
         <tbody>
           {roastedInventory.map((r, idx) => (
-            <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+            <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
               <td className="border px-2 py-1">{r.coffee.name}</td>
               <td className="border px-2 py-1">
                 {r.quantity} {r.unit}
@@ -314,7 +320,7 @@ function Inventory({ coffees, setCoffees, bags, setBags }) {
             </thead>
             <tbody>
               {espressoRefills.map((r, idx) => (
-                <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+                <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
                   <td className="border px-2 py-1">{r.coffee.name}</td>
                   <td className="border px-2 py-1">
                     {r.quantity} {r.unit}

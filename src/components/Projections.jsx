@@ -28,7 +28,7 @@ function Projections({ bags }) {
           </thead>
           <tbody>
             {bags.map((b, idx) => (
-              <tr key={idx} className="odd:bg-white even:bg-dark-green/5">
+              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
                 <td className="border px-2 py-1">{b.coffee.name}</td>
                 <td className="border px-2 py-1">{b.bagWeight}</td>
                 <td className="border px-2 py-1">{b.numBags}</td>
