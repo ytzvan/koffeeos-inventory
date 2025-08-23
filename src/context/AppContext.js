@@ -14,6 +14,8 @@ export const AppProvider = ({ children, initialState = {} }) => {
   const [bags, setBags] = useState(initialState.bags || []);
   const [espressoRefills, setEspressoRefills] = useState(initialState.espressoRefills || []);
   const [espressoProjections, setEspressoProjections] = useState(initialState.espressoProjections || []);
+  const [filterRefills, setFilterRefills] = useState(initialState.filterRefills || []);
+  const [filterProjections, setFilterProjections] = useState(initialState.filterProjections || []);
   const [modules, setModules] = useState(initialState.modules || modulesData);
   const [providers, setProviders] = useState(initialState.providers || providersData);
   const [sales, setSales] = useState(initialState.sales || []);
@@ -46,6 +48,10 @@ export const AppProvider = ({ children, initialState = {} }) => {
     setEspressoRefills,
     espressoProjections,
     setEspressoProjections,
+    filterRefills,
+    setFilterRefills,
+    filterProjections,
+    setFilterProjections,
     modules,
     setModules,
     providers,

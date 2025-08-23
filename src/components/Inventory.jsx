@@ -11,6 +11,8 @@ function Inventory() {
     setBags,
     espressoRefills,
     setEspressoRefills,
+    filterRefills,
+    setFilterRefills,
     inventory,
     setInventory,
   } = useAppContext();
@@ -24,6 +26,7 @@ function Inventory() {
     unit: 'kg',
   });
   const [espressoForm, setEspressoForm] = useState({ coffeeIndex: '', quantity: '' });
+  const [filterForm, setFilterForm] = useState({ coffeeIndex: '', quantity: '' });
 
   const handleGreenChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +57,11 @@ function Inventory() {
     setEspressoForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilterForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const addEspressoRefill = (e) => {
     e.preventDefault();
     const entry = roastedInventory[espressoForm.coffeeIndex];
@@ -72,6 +80,26 @@ function Inventory() {
       { coffee: entry.coffee, quantity: qty, unit: entry.unit },
     ]);
     setEspressoForm({ coffeeIndex: '', quantity: '' });
+  };
+
+  const addFilterRefill = (e) => {
+    e.preventDefault();
+    const entry = roastedInventory[filterForm.coffeeIndex];
+    if (!entry) return;
+    const qty = parseFloat(filterForm.quantity);
+    if (isNaN(qty) || qty <= 0 || qty > entry.quantity) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) =>
+        i === parseInt(filterForm.coffeeIndex, 10)
+          ? { ...r, quantity: r.quantity - qty }
+          : r
+      )
+    );
+    setFilterRefills((prev) => [
+      ...prev,
+      { coffee: entry.coffee, quantity: qty, unit: entry.unit },
+    ]);
+    setFilterForm({ coffeeIndex: '', quantity: '' });
   };
 
   const editRoasted = (index) => {
@@ -477,6 +505,60 @@ function Inventory() {
             </table>
           </div>
         </>
+      )}
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Filter Refill</h3>
+      <form onSubmit={addFilterRefill} className="mb-4 flex flex-wrap gap-2 items-end">
+        <select
+          name="coffeeIndex"
+          value={filterForm.coffeeIndex}
+          onChange={handleFilterChange}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Select Roasted Coffee
+          </option>
+          {roastedInventory.map((r, idx) => (
+            <option key={idx} value={idx}>
+              {r.coffee.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          name="quantity"
+          value={filterForm.quantity}
+          onChange={handleFilterChange}
+          placeholder="Quantity"
+          className="p-1 border rounded flex-1"
+          required
+        />
+        <button type="submit" className="px-3 py-1 bg-dark-green text-white rounded">
+          Use
+        </button>
+      </form>
+      {filterRefills.length > 0 && (
+        <div className="overflow-x-auto w-full mb-8">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-dark-green text-white">
+                <th className="border px-2 py-1 text-left">Coffee</th>
+                <th className="border px-2 py-1 text-left">Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filterRefills.map((r, idx) => (
+                <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                  <td className="border px-2 py-1">{r.coffee.name}</td>
+                  <td className="border px-2 py-1">
+                    {r.quantity} {r.unit}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <h3 className="text-lg font-semibold mb-2 text-dark-green">Espresso Refill</h3>

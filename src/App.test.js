@@ -144,3 +144,29 @@ test('adds espresso projection', () => {
   expect(screen.getByText('Test Coffee')).toBeInTheDocument();
   expect(screen.getByText('55')).toBeInTheDocument();
 });
+
+test('adds filter projection', () => {
+  const refills = [
+    {
+      coffee: { name: 'Filter Coffee', purchasePrice: '15' },
+      quantity: 1,
+      unit: 'kg',
+    },
+  ];
+
+  render(
+    <AppProvider initialState={{ filterRefills: refills }}>
+      <Projections />
+    </AppProvider>
+  );
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: '0' } });
+  fireEvent.change(screen.getByPlaceholderText(/Base Size/i), {
+    target: { value: '20' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/Sale Price/i), {
+    target: { value: '3' },
+  });
+  fireEvent.click(screen.getByText(/Add Projection/i));
+  expect(screen.getByText('Filter Coffee')).toBeInTheDocument();
+  expect(screen.getByText('50')).toBeInTheDocument();
+});
