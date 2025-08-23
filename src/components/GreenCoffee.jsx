@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import countries from '../models/countries';
-import providers from '../models/providers';
 import CoffeeModel from '../models/coffee';
 import RoastedCoffee from '../models/roastedCoffee';
 
-function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoastedCoffees }) {
+function GreenCoffee({ greenCoffees, setGreenCoffees, roastedCoffees, setRoastedCoffees, providers }) {
   const initialForm = {
     name: '',
     origins: [],

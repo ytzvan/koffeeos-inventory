@@ -38,6 +38,12 @@ test('renders roasted coffee menu', () => {
   expect(menuItem).toBeInTheDocument();
 });
 
+test('renders providers menu', () => {
+  render(<App />);
+  const menuItem = screen.getByText(/Providers/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
 test('renders inventory section', () => {
   render(<App />);
   fireEvent.click(screen.getByText(/Inventory/i));

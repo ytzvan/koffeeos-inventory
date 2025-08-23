@@ -8,6 +8,7 @@ import {
   FaChartBar,
   FaTools,
   FaLeaf,
+  FaHandshake,
 } from 'react-icons/fa';
 import logo from '../koffeeos-logo.svg';
 
@@ -17,6 +18,7 @@ const icons = {
   inventory: FaBox,
   dashboard: FaChartLine,
   projections: FaChartBar,
+  providers: FaHandshake,
   settings: FaCog,
   billing: FaFileInvoiceDollar,
   management: FaTools,

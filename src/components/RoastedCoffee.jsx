@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import countries from '../models/countries';
-import providers from '../models/providers';
 import RoastedCoffeeModel from '../models/roastedCoffee';
 
-function RoastedCoffee({ roastedCoffees, setRoastedCoffees }) {
+function RoastedCoffee({ roastedCoffees, setRoastedCoffees, providers }) {
   const initialForm = {
     name: '',
     origins: [],

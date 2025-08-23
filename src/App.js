@@ -10,9 +10,11 @@ import GreenCoffee from './components/GreenCoffee';
 import RoastedCoffee from './components/RoastedCoffee';
 import Projections from './components/Projections';
 import Management from './components/Management';
+import Providers from './components/Providers';
 import greenCoffeeData from './models/greenCoffeeData';
 import roastedCoffeeData from './models/roastedCoffeeData';
 import modulesData from './models/modules';
+import providersData from './models/providers';
 
 function App() {
   const [view, setView] = useState('greenCoffee');
@@ -21,6 +23,7 @@ function App() {
   const [roastedCoffees, setRoastedCoffees] = useState(roastedCoffeeData);
   const [bags, setBags] = useState([]);
   const [modules, setModules] = useState(modulesData);
+  const [providers, setProviders] = useState(providersData);
   const [darkMode, setDarkMode] = useState(false);
   const [userMenu, setUserMenu] = useState(false);
 
@@ -45,6 +48,7 @@ function App() {
             setGreenCoffees={setGreenCoffees}
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
+            providers={providers}
           />
         );
       case 'roastedCoffee':
@@ -52,6 +56,7 @@ function App() {
           <RoastedCoffee
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
+            providers={providers}
           />
         );
       case 'dashboard':
@@ -72,6 +77,10 @@ function App() {
             setBags={setBags}
           />
         );
+      case 'providers':
+        return (
+          <Providers providers={providers} setProviders={setProviders} />
+        );
       case 'management':
         return <Management modules={modules} setModules={setModules} />;
       default:
@@ -81,6 +90,7 @@ function App() {
             setGreenCoffees={setGreenCoffees}
             roastedCoffees={roastedCoffees}
             setRoastedCoffees={setRoastedCoffees}
+            providers={providers}
           />
         );
     }
