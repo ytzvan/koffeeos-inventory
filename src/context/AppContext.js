@@ -5,6 +5,7 @@ import providersData from '../models/providers';
 import modulesData from '../models/modules';
 import inventoryData from '../models/inventory';
 import customersData from '../models/customers';
+import fincaLotsData from '../models/fincaLots';
 
 const AppContext = createContext();
 
@@ -22,6 +23,7 @@ export const AppProvider = ({ children, initialState = {} }) => {
   const [sales, setSales] = useState(initialState.sales || []);
   const [customers, setCustomers] = useState(initialState.customers || customersData);
   const [darkMode, setDarkMode] = useState(initialState.darkMode || false);
+  const [fincaLots, setFincaLots] = useState(initialState.fincaLots || fincaLotsData);
 
   useEffect(() => {
     setInventory((prev) => {
@@ -64,6 +66,8 @@ export const AppProvider = ({ children, initialState = {} }) => {
     setCustomers,
     darkMode,
     setDarkMode,
+    fincaLots,
+    setFincaLots,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import Dashboard from './components/Dashboard';
 import Projections from './components/Projections';
@@ -179,4 +179,47 @@ test('adds filter projection', () => {
   fireEvent.click(screen.getByText(/Add Projection/i));
   expect(screen.getByText('Filter Coffee')).toBeInTheDocument();
   expect(screen.getByText('50')).toBeInTheDocument();
+});
+
+test('processes finca lots into green coffee inventory', async () => {
+  render(
+    <AppProvider>
+      <App />
+    </AppProvider>
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: /Finca/i }));
+
+  fireEvent.change(screen.getByLabelText(/Coffee Name/i), {
+    target: { value: 'Finca Lot' },
+  });
+  fireEvent.change(screen.getByLabelText(/Process/i), {
+    target: { value: 'Honey' },
+  });
+  fireEvent.change(screen.getByLabelText(/^Latas/i), {
+    target: { value: '10' },
+  });
+  fireEvent.change(screen.getByLabelText(/Kg per Lata/i), {
+    target: { value: '12' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: /Add Lot/i }));
+
+  expect(screen.getByText('Finca Lot')).toBeInTheDocument();
+
+  const processButtons = screen.getAllByRole('button', { name: /Process/i });
+  fireEvent.click(processButtons[0]);
+
+  fireEvent.change(screen.getByLabelText(/^Sacks/i), {
+    target: { value: '2' },
+  });
+  fireEvent.change(screen.getByLabelText(/Kg per Sack/i), {
+    target: { value: '69' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
+
+  await waitFor(() => expect(screen.getAllByText(/Processed/i)[0]).toBeInTheDocument());
+
+  fireEvent.click(screen.getAllByText(/Green Coffee/i)[0]);
+  await waitFor(() => expect(screen.getByText('Finca Lot')).toBeInTheDocument());
+  expect(screen.getByText('138')).toBeInTheDocument();
 });

@@ -14,6 +14,7 @@ import Providers from './components/Providers';
 import POS from './components/POS';
 import Sales from './components/Sales';
 import Customers from './components/Customers';
+import Finca from './components/Finca';
 import { useAppContext } from './context/AppContext';
 
 function App() {
@@ -64,6 +65,8 @@ function App() {
         return <Sales />;
       case 'customers':
         return <Customers />;
+      case 'finca':
+        return <Finca />;
       default:
         return <GreenCoffee />;
     }

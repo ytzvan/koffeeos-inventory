@@ -19,6 +19,7 @@ function Management() {
           <thead>
             <tr className="bg-dark-green text-white">
               <th className="border px-2 py-1 text-left">Module</th>
+              <th className="border px-2 py-1 text-left">Set</th>
               <th className="border px-2 py-1 text-center">Enabled</th>
             </tr>
           </thead>
@@ -26,6 +27,7 @@ function Management() {
             {modules.map((m) => (
               <tr key={m.key} className="odd:bg-dark-green/5 even:bg-white">
                 <td className="border px-2 py-1">{m.name}</td>
+                <td className="border px-2 py-1">{m.group || 'KoffeeOS Core'}</td>
                 <td className="border px-2 py-1 text-center">
                   <input
                     type="checkbox"
