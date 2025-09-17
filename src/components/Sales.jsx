@@ -137,26 +137,28 @@ function Sales() {
         </button>
       </form>
       {sales.length > 0 && (
-        <table className="min-w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-dark-green text-white">
-              <th className="border px-2 py-1 text-left">Coffee</th>
-              <th className="border px-2 py-1 text-left">Bag Weight</th>
-              <th className="border px-2 py-1 text-left">Qty</th>
-              <th className="border px-2 py-1 text-left">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sales.map((s, idx) => (
-              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
-                <td className="border px-2 py-1">{s.bag.coffee.name}</td>
-                <td className="border px-2 py-1">{s.bag.bagWeight}</td>
-                <td className="border px-2 py-1">{s.quantity}</td>
-                <td className="border px-2 py-1">{s.total.toFixed(2)}</td>
+        <div className="overflow-x-auto w-full">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-dark-green text-white">
+                <th className="border px-2 py-1 text-left">Coffee</th>
+                <th className="border px-2 py-1 text-left">Bag Weight</th>
+                <th className="border px-2 py-1 text-left">Qty</th>
+                <th className="border px-2 py-1 text-left">Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {sales.map((s, idx) => (
+                <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                  <td className="border px-2 py-1">{s.bag.coffee.name}</td>
+                  <td className="border px-2 py-1">{s.bag.bagWeight}</td>
+                  <td className="border px-2 py-1">{s.quantity}</td>
+                  <td className="border px-2 py-1">{s.total.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
