@@ -11,6 +11,7 @@ import {
   FaHandshake,
   FaCashRegister,
   FaShoppingCart,
+  FaUser,
 } from 'react-icons/fa';
 import logo from '../koffeeos-logo.svg';
 import { useAppContext } from '../context/AppContext';
@@ -27,6 +28,7 @@ const icons = {
   management: FaTools,
   pos: FaCashRegister,
   sales: FaShoppingCart,
+  customers: FaUser,
 };
 
 function SideMenu({ current, onChange, className = '' }) {

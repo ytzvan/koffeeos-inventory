@@ -75,6 +75,16 @@ test('renders providers menu', () => {
   expect(menuItem).toBeInTheDocument();
 });
 
+test('renders customers menu', () => {
+  render(
+    <AppProvider>
+      <App />
+    </AppProvider>
+  );
+  const menuItem = screen.getByText(/Customers/i);
+  expect(menuItem).toBeInTheDocument();
+});
+
 test('renders inventory section', () => {
   render(
     <AppProvider>

@@ -10,6 +10,7 @@ import {
   FaHandshake,
   FaCashRegister,
   FaShoppingCart,
+  FaUser,
 } from 'react-icons/fa';
 
 const modules = [
@@ -20,6 +21,7 @@ const modules = [
   { key: 'projections', name: 'Projections', icon: FaChartBar, enabled: true },
   { key: 'pos', name: 'POS', icon: FaCashRegister, enabled: true },
   { key: 'sales', name: 'Sales', icon: FaShoppingCart, enabled: true },
+  { key: 'customers', name: 'Customers', icon: FaUser, enabled: true },
   { key: 'providers', name: 'Providers', icon: FaHandshake, enabled: true },
   { key: 'settings', name: 'Settings', icon: FaCog, enabled: true },
   { key: 'billing', name: 'Billing', icon: FaFileInvoiceDollar, enabled: true },

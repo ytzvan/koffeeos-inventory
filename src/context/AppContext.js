@@ -4,6 +4,7 @@ import roastedCoffeeData from '../models/roastedCoffeeData';
 import providersData from '../models/providers';
 import modulesData from '../models/modules';
 import inventoryData from '../models/inventory';
+import customersData from '../models/customers';
 
 const AppContext = createContext();
 
@@ -19,6 +20,7 @@ export const AppProvider = ({ children, initialState = {} }) => {
   const [modules, setModules] = useState(initialState.modules || modulesData);
   const [providers, setProviders] = useState(initialState.providers || providersData);
   const [sales, setSales] = useState(initialState.sales || []);
+  const [customers, setCustomers] = useState(initialState.customers || customersData);
   const [darkMode, setDarkMode] = useState(initialState.darkMode || false);
 
   useEffect(() => {
@@ -58,6 +60,8 @@ export const AppProvider = ({ children, initialState = {} }) => {
     setProviders,
     sales,
     setSales,
+    customers,
+    setCustomers,
     darkMode,
     setDarkMode,
   };
