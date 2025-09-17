@@ -1,5 +1,29 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+jest.mock('react-icons/fa', () => {
+  const NullIcon = () => null;
+  return {
+    FaBars: NullIcon,
+    FaBox: NullIcon,
+    FaCashRegister: NullIcon,
+    FaChartBar: NullIcon,
+    FaChartLine: NullIcon,
+    FaCoffee: NullIcon,
+    FaCog: NullIcon,
+    FaFileInvoiceDollar: NullIcon,
+    FaHandshake: NullIcon,
+    FaLeaf: NullIcon,
+    FaMoon: NullIcon,
+    FaSeedling: NullIcon,
+    FaShoppingCart: NullIcon,
+    FaSun: NullIcon,
+    FaTools: NullIcon,
+    FaUser: NullIcon,
+    FaUserCircle: NullIcon,
+  };
+});
+
 import App from './App';
 import Dashboard from './components/Dashboard';
 import Projections from './components/Projections';
