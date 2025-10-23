@@ -1,515 +1,621 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import RoastedCoffee from '../models/roastedCoffee';
+import { useAppContext } from '../context/AppContext';
 
 function Inventory() {
-  const today = new Date().toISOString().split('T')[0];
+  const {
+    greenCoffees,
+    roastedCoffees,
+    setRoastedCoffees,
+    bags,
+    setBags,
+    espressoRefills,
+    setEspressoRefills,
+    filterRefills,
+    setFilterRefills,
+    inventory,
+    setInventory,
+  } = useAppContext();
+  const [greenInventory, setGreenInventory] = useState([]);
+  const [roastedInventory, setRoastedInventory] = useState(
+    roastedCoffees.map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }))
+  );
+  const [greenForm, setGreenForm] = useState({
+    coffeeIndex: '',
+    quantity: '',
+    unit: 'kg',
+  });
+  const [espressoForm, setEspressoForm] = useState({ coffeeIndex: '', quantity: '' });
+  const [filterForm, setFilterForm] = useState({ coffeeIndex: '', quantity: '' });
 
-  const producerCountries = [
-    'Brazil',
-    'Colombia',
-    'Ethiopia',
-    'Vietnam',
-    'Indonesia',
-    'Guatemala',
-    'Mexico',
-    'Peru',
-    'Honduras',
-    'Nicaragua',
-    'Costa Rica',
-    'Kenya',
-    'Rwanda',
-    'Uganda',
-    'India',
-  ];
+  const handleGreenChange = (e) => {
+    const { name, value } = e.target;
+    setGreenForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const [greenCoffee, setGreenCoffee] = useState([]);
-  const [roastedCoffee, setRoastedCoffee] = useState([]);
-  const [consumables, setConsumables] = useState([]);
-  const [operations, setOperations] = useState([]);
+  const addGreen = (e) => {
+    e.preventDefault();
+    const coffee = greenCoffees[greenForm.coffeeIndex];
+    const qty = parseFloat(greenForm.quantity);
+    const qtyKg = greenForm.unit === 'kg' ? qty : qty * 0.453592;
+    setGreenInventory((prev) => [
+      ...prev,
+      { coffee, quantity: qty, unit: greenForm.unit },
+    ]);
+    setInventory((prev) => ({
+      ...prev,
+      green: {
+        ...prev.green,
+        [coffee.id]: (prev.green[coffee.id] || 0) + qtyKg,
+      },
+    }));
+    setGreenForm({ coffeeIndex: '', quantity: '', unit: 'kg' });
+  };
 
-  const [greenInput, setGreenInput] = useState({ origin: '', weight: '', unit: 'kg', date: today });
-  const [roastedInput, setRoastedInput] = useState({ blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' });
-  const [consumableInput, setConsumableInput] = useState({ item: '', quantity: '', unit: 'grams' });
-  const [operationInput, setOperationInput] = useState({ item: '', type: 'Add', quantity: '', unit: 'kg', date: today });
+  const handleEspressoChange = (e) => {
+    const { name, value } = e.target;
+    setEspressoForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const [editingGreen, setEditingGreen] = useState(null);
-  const [savingGreen, setSavingGreen] = useState(false);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilterForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const [editingRoasted, setEditingRoasted] = useState(null);
-  const [savingRoasted, setSavingRoasted] = useState(false);
+  const addEspressoRefill = (e) => {
+    e.preventDefault();
+    const entry = roastedInventory[espressoForm.coffeeIndex];
+    if (!entry) return;
+    const qty = parseFloat(espressoForm.quantity);
+    if (isNaN(qty) || qty <= 0 || qty > entry.quantity) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) =>
+        i === parseInt(espressoForm.coffeeIndex, 10)
+          ? { ...r, quantity: r.quantity - qty }
+          : r
+      )
+    );
+    setEspressoRefills((prev) => [
+      ...prev,
+      { coffee: entry.coffee, quantity: qty, unit: entry.unit },
+    ]);
+    setEspressoForm({ coffeeIndex: '', quantity: '' });
+  };
 
-  const [editingConsumable, setEditingConsumable] = useState(null);
-  const [savingConsumable, setSavingConsumable] = useState(false);
-  const [editingOperation, setEditingOperation] = useState(null);
-  const [savingOperation, setSavingOperation] = useState(false);
+  const addFilterRefill = (e) => {
+    e.preventDefault();
+    const entry = roastedInventory[filterForm.coffeeIndex];
+    if (!entry) return;
+    const qty = parseFloat(filterForm.quantity);
+    if (isNaN(qty) || qty <= 0 || qty > entry.quantity) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) =>
+        i === parseInt(filterForm.coffeeIndex, 10)
+          ? { ...r, quantity: r.quantity - qty }
+          : r
+      )
+    );
+    setFilterRefills((prev) => [
+      ...prev,
+      { coffee: entry.coffee, quantity: qty, unit: entry.unit },
+    ]);
+    setFilterForm({ coffeeIndex: '', quantity: '' });
+  };
 
-  const operationsWithTotals = () => {
-    const totals = {};
-    return operations.map((op) => {
-      const qty = Number(op.quantity);
-      const prev = totals[op.item] || 0;
-      const newTotal = op.type === 'Add' ? prev + qty : prev - qty;
-      totals[op.item] = newTotal;
-      return { ...op, currentQty: `${newTotal} ${op.unit}` };
+  const editRoasted = (index) => {
+    const entry = roastedInventory[index];
+    const qty = parseFloat(prompt('New quantity?', entry.quantity));
+    if (isNaN(qty) || qty < 0) return;
+    const unit = prompt('Unit? (kg/lbs)', entry.unit);
+    if (!unit) return;
+    setRoastedInventory((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, quantity: qty, unit } : r))
+    );
+  };
+
+  useEffect(() => {
+    setRoastedInventory((prev) => {
+      const keys = prev.map((r) => `${r.coffee.name}-${r.coffee.roastLevel || ''}`);
+      const additions = roastedCoffees
+        .filter((c) => !keys.includes(`${c.name}-${c.roastLevel || ''}`))
+        .map((c) => ({ coffee: c, quantity: 0, unit: 'kg' }));
+      return [...prev, ...additions];
+    });
+  }, [roastedCoffees]);
+
+  const createRoastFromGreen = (index) => {
+    const entry = greenInventory[index];
+    const batch = parseFloat(prompt('Green coffee quantity to roast?'));
+    const roastLevel = prompt('Roast level? (Light/Medium/Dark)');
+    const loss = parseFloat(prompt('Percent weight loss?'));
+    if (
+      isNaN(batch) ||
+      isNaN(loss) ||
+      !roastLevel ||
+      batch <= 0 ||
+      batch > entry.quantity
+    )
+      return;
+    const roastedQty = batch * (1 - loss / 100);
+    const batchKg = entry.unit === 'kg' ? batch : batch * 0.453592;
+    const roastedKg = entry.unit === 'kg' ? roastedQty : roastedQty * 0.453592;
+    const existingIdx = roastedInventory.findIndex(
+      (r) => r.coffee.name === entry.coffee.name && r.coffee.roastLevel === roastLevel
+    );
+    if (existingIdx !== -1) {
+      setRoastedInventory((prev) =>
+        prev.map((r, i) =>
+          i === existingIdx ? { ...r, quantity: r.quantity + roastedQty } : r
+        )
+      );
+    } else {
+      const roastedCoffee = new RoastedCoffee({
+        ...entry.coffee,
+        roastLevel,
+        loss: String(loss),
+        purchasePrice: entry.coffee.purchasePrice,
+      });
+      setRoastedCoffees((prev) => [...prev, roastedCoffee]);
+      setRoastedInventory((prev) => [
+        ...prev,
+        { coffee: roastedCoffee, quantity: roastedQty, unit: entry.unit },
+      ]);
+    }
+    setGreenInventory((prev) =>
+      prev.map((g, i) => (i === index ? { ...g, quantity: g.quantity - batch } : g))
+    );
+    setInventory((prev) => {
+      const greenQty = (prev.green[entry.coffee.id] || 0) - batchKg;
+      const roastedQtyPrev = prev.roasted[entry.coffee.id] || 0;
+      const roastedQtyNew = roastedQtyPrev + roastedKg;
+      return {
+        ...prev,
+        green: {
+          ...prev.green,
+          [entry.coffee.id]: parseFloat(greenQty.toFixed(2)),
+        },
+        roasted: {
+          ...prev.roasted,
+          [entry.coffee.id]: parseFloat(roastedQtyNew.toFixed(2)),
+        },
+      };
     });
   };
 
-  const handleChange = (setter) => (e) => {
+  const [bagForm, setBagForm] = useState(null);
+
+  const toGrams = (qty, unit) =>
+    unit === 'kg' ? qty * 1000 : unit === 'lbs' ? qty * 453.592 : qty;
+  const gramsToUnit = (g, unit) =>
+    unit === 'kg' ? g / 1000 : unit === 'lbs' ? g / 453.592 : g;
+
+  const startBagging = (index) =>
+    setBagForm({
+      index,
+      bagWeight: 250,
+      numBags: 1,
+      costPrice: '',
+      retailPrice: '',
+    });
+
+  const handleBagChange = (e) => {
     const { name, value } = e.target;
-    setter((prev) => ({ ...prev, [name]: value }));
+    setBagForm((prev) => {
+      if (name === 'bagWeight') {
+        const entry = roastedInventory[prev.index];
+        const max = Math.floor(
+          toGrams(entry.quantity, entry.unit) / parseInt(value, 10)
+        );
+        return {
+          ...prev,
+          bagWeight: parseInt(value, 10),
+          numBags: Math.min(prev.numBags, Math.max(max, 1)),
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
-  const handleAdd = (input, setter, dataSetter, defaults) => (e) => {
+  const submitBagForm = (e) => {
     e.preventDefault();
-    dataSetter((prev) => [...prev, input]);
-    setter(defaults);
+    if (!bagForm) return;
+    const entry = roastedInventory[bagForm.index];
+    const bw = parseFloat(bagForm.bagWeight);
+    const nb = parseInt(bagForm.numBags, 10);
+    const cp = parseFloat(bagForm.costPrice);
+    const rp = parseFloat(bagForm.retailPrice);
+    if ([bw, nb, cp, rp].some((v) => isNaN(v) || v <= 0)) return;
+    const totalGrams = bw * nb;
+    const availableGrams = toGrams(entry.quantity, entry.unit);
+    if (totalGrams > availableGrams) return;
+    const newQty = gramsToUnit(availableGrams - totalGrams, entry.unit);
+    setRoastedInventory((prev) =>
+      prev.map((r, i) =>
+        i === bagForm.index ? { ...r, quantity: parseFloat(newQty.toFixed(2)) } : r
+      )
+    );
+    setInventory((prev) => ({
+      ...prev,
+      roasted: {
+        ...prev.roasted,
+        [entry.coffee.id]: parseFloat(
+          ((prev.roasted[entry.coffee.id] || 0) - totalGrams / 1000).toFixed(2)
+        ),
+      },
+    }));
+    setBags((prev) => [
+      ...prev,
+      {
+        coffee: entry.coffee,
+        bagWeight: bw,
+        numBags: nb,
+        costPrice: cp,
+        retailPrice: rp,
+      },
+    ]);
+    setBagForm(null);
   };
 
-  const handleSave = (index, dataSetter, input, setter, defaults, setSaving, setEditing) => (e) => {
-    e.preventDefault();
-    setSaving(true);
-    setTimeout(() => {
-      dataSetter((prev) => prev.map((item, i) => (i === index ? input : item)));
-      setSaving(false);
-      setEditing(null);
-      setter(defaults);
-    }, 1000);
-  };
+  const cancelBagForm = () => setBagForm(null);
 
-  const renderTable = (data, columns, onEdit) => (
-    <table className="w-full border-collapse mb-8 text-sm">
-      <thead>
-        <tr className="bg-beige-dark">
-          {columns.map((col) => (
-            <th key={col.label} className="border px-2 py-1 text-left">
-              {col.label}
-            </th>
-          ))}
-          {onEdit && <th className="border px-2 py-1">Actions</th>}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item, idx) => (
-          <tr key={idx} className="odd:bg-white even:bg-beige/50">
-            {columns.map((col) => {
-              const key = col.key;
-              let value = item[key];
-              if ((key === 'weight' || key === 'quantity') && item.unit) {
-                value = `${value} ${item.unit}`;
-              }
-              return (
-                <td key={col.label} className="border px-2 py-1">
-                  {value}
-                </td>
-              );
-            })}
-            {onEdit && (
-              <td className="border px-2 py-1 text-center">
-                <button
-                  type="button"
-                  onClick={() => onEdit(idx)}
-                  className="text-blue-600 underline"
-                >
-                  Edit
-                </button>
-              </td>
-            )}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  const getBagCount = (coffee) =>
+    bags
+      .filter((b) => b.coffee.name === coffee.name)
+      .reduce((sum, b) => sum + b.numBags, 0);
+
+  const bagEntry = bagForm ? roastedInventory[bagForm.index] : null;
+  const bagAvailable = bagEntry ? toGrams(bagEntry.quantity, bagEntry.unit) : 0;
+  const bagMax = bagEntry ? Math.floor(bagAvailable / bagForm.bagWeight) : 0;
+  const bagLeft = bagEntry
+    ? gramsToUnit(
+        Math.max(bagAvailable - bagForm.bagWeight * bagForm.numBags, 0),
+        bagEntry.unit
+      )
+    : 0;
 
   return (
-    <div className="p-4 bg-white rounded shadow-md mb-6">
-      <h2 className="text-xl font-semibold mb-3">Green Coffee</h2>
-      <form
-        onSubmit={
-          editingGreen !== null
-            ? handleSave(
-                editingGreen,
-                setGreenCoffee,
-                greenInput,
-                setGreenInput,
-                { origin: '', weight: '', unit: 'kg', date: today },
-                setSavingGreen,
-                setEditingGreen
-              )
-            : handleAdd(
-                greenInput,
-                setGreenInput,
-                setGreenCoffee,
-                { origin: '', weight: '', unit: 'kg', date: today }
-              )
-        }
-        className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
-      >
+    <div className="p-4 bg-white dark:bg-gray-800 dark:text-white rounded shadow-md mb-6 w-full">
+      <h2 className="text-xl font-semibold mb-3 text-dark-green">Inventory</h2>
+      <form onSubmit={addGreen} className="mb-4 flex flex-wrap gap-2 items-end">
         <select
-          name="origin"
-          value={greenInput.origin}
-          onChange={handleChange(setGreenInput)}
+          name="coffeeIndex"
+          value={greenForm.coffeeIndex}
+          onChange={handleGreenChange}
           className="p-1 border rounded flex-1"
           required
         >
           <option value="" disabled>
-            Select Origin
+            Select Green Coffee
           </option>
-          {producerCountries.map((c) => (
-            <option key={c} value={c}>
-              {c}
+          {greenCoffees.map((c, idx) => (
+            <option key={idx} value={idx}>
+              {c.name}
             </option>
           ))}
         </select>
-        <div className="flex flex-1 gap-1">
-          <input
-            type="number"
-            name="weight"
-            value={greenInput.weight}
-            onChange={handleChange(setGreenInput)}
-            placeholder="Weight"
-            className="p-1 border rounded flex-1"
-            required
-          />
-          <select
-            name="unit"
-            value={greenInput.unit}
-            onChange={handleChange(setGreenInput)}
-            className="p-1 border rounded"
-          >
-            <option value="kg">kg</option>
-            <option value="lbs">lbs</option>
-          </select>
-        </div>
-        <input
-          type="date"
-          name="date"
-          value={greenInput.date}
-          onChange={handleChange(setGreenInput)}
-          className="p-1 border rounded flex-1"
-          required
-        />
-        <button
-          type="submit"
-          className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
-          disabled={savingGreen}
-        >
-          {savingGreen ? (
-            <span className="w-4 h-4 border-2 border-t-transparent border-gray-800 rounded-full animate-spin" />
-          ) : editingGreen !== null ? (
-            'Save'
-          ) : (
-            'Add'
-          )}
-        </button>
-      </form>
-      {renderTable(
-        greenCoffee,
-        [
-          { label: 'Origin', key: 'origin' },
-          { label: 'Weight', key: 'weight' },
-          { label: 'Date', key: 'date' },
-        ],
-        (idx) => {
-          setEditingGreen(idx);
-          setGreenInput(greenCoffee[idx]);
-        }
-      )}
-
-      <h2 className="text-xl font-semibold mb-3">Roasted Coffee</h2>
-      <form
-        onSubmit={
-          editingRoasted !== null
-            ? handleSave(
-                editingRoasted,
-                setRoastedCoffee,
-                roastedInput,
-                setRoastedInput,
-                { blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' },
-                setSavingRoasted,
-                setEditingRoasted
-              )
-            : handleAdd(
-                roastedInput,
-                setRoastedInput,
-                setRoastedCoffee,
-                { blend: '', roastLevel: '', quantity: '', unit: 'kg', date: today, notes: '' }
-              )
-        }
-        className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
-      >
-        <input
-          type="text"
-          name="blend"
-          value={roastedInput.blend}
-          onChange={handleChange(setRoastedInput)}
-          placeholder="Blend"
-          className="p-1 border rounded flex-1"
-          required
-        />
-        <select
-          name="roastLevel"
-          value={roastedInput.roastLevel}
-          onChange={handleChange(setRoastedInput)}
-          className="p-1 border rounded flex-1"
-          required
-        >
-          <option value="" disabled>
-            Roast Level
-          </option>
-          <option value="Light">Light</option>
-          <option value="Medium">Medium</option>
-          <option value="Dark">Dark</option>
-        </select>
-        <div className="flex flex-1 gap-1">
-          <input
-            type="number"
-            name="quantity"
-            value={roastedInput.quantity}
-            onChange={handleChange(setRoastedInput)}
-            placeholder="Quantity"
-            className="p-1 border rounded flex-1"
-            required
-          />
-          <select
-            name="unit"
-            value={roastedInput.unit}
-            onChange={handleChange(setRoastedInput)}
-            className="p-1 border rounded"
-          >
-            <option value="kg">kg</option>
-            <option value="lbs">lbs</option>
-          </select>
-        </div>
-        <input
-          type="date"
-          name="date"
-          value={roastedInput.date}
-          onChange={handleChange(setRoastedInput)}
-          className="p-1 border rounded flex-1"
-          required
-        />
-        <input
-          type="text"
-          name="notes"
-          value={roastedInput.notes}
-          onChange={handleChange(setRoastedInput)}
-          placeholder="Notes"
-          className="p-1 border rounded flex-1"
-        />
-        <button
-          type="submit"
-          className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
-          disabled={savingRoasted}
-        >
-          {savingRoasted ? (
-            <span className="w-4 h-4 border-2 border-t-transparent border-gray-800 rounded-full animate-spin" />
-          ) : editingRoasted !== null ? (
-            'Save'
-          ) : (
-            'Add'
-          )}
-        </button>
-      </form>
-      {renderTable(
-        roastedCoffee,
-        [
-          { label: 'Blend', key: 'blend' },
-          { label: 'Roast Level', key: 'roastLevel' },
-          { label: 'Quantity', key: 'quantity' },
-          { label: 'Date', key: 'date' },
-          { label: 'Notes', key: 'notes' },
-        ],
-        (idx) => {
-          setEditingRoasted(idx);
-          setRoastedInput(roastedCoffee[idx]);
-        }
-      )}
-
-      <h2 className="text-xl font-semibold mb-3">Consumables</h2>
-      <form
-        onSubmit={
-          editingConsumable !== null
-            ? handleSave(
-                editingConsumable,
-                setConsumables,
-                consumableInput,
-                setConsumableInput,
-                { item: '', quantity: '', unit: 'grams' },
-                setSavingConsumable,
-                setEditingConsumable
-              )
-            : handleAdd(
-                consumableInput,
-                setConsumableInput,
-                setConsumables,
-                { item: '', quantity: '', unit: 'grams' }
-              )
-        }
-        className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
-      >
-        <input
-          type="text"
-          name="item"
-          value={consumableInput.item}
-          onChange={handleChange(setConsumableInput)}
-          placeholder="Item"
-          className="p-1 border rounded flex-1"
-          required
-        />
         <input
           type="number"
           name="quantity"
-          value={consumableInput.quantity}
-          onChange={handleChange(setConsumableInput)}
+          value={greenForm.quantity}
+          onChange={handleGreenChange}
           placeholder="Quantity"
           className="p-1 border rounded flex-1"
           required
         />
         <select
           name="unit"
-          value={consumableInput.unit}
-          onChange={handleChange(setConsumableInput)}
-          className="p-1 border rounded flex-1"
-          required
-        >
-          <option value="grams">grams</option>
-          <option value="kilograms">kilograms</option>
-          <option value="ml">ml</option>
-          <option value="liters">liters</option>
-          <option value="boxes">boxes</option>
-          <option value="units">units</option>
-        </select>
-        <button
-          type="submit"
-          className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
-          disabled={savingConsumable}
-        >
-          {savingConsumable ? (
-            <span className="w-4 h-4 border-2 border-t-transparent border-gray-800 rounded-full animate-spin" />
-          ) : editingConsumable !== null ? (
-            'Save'
-          ) : (
-            'Add'
-          )}
-        </button>
-      </form>
-      {renderTable(
-        consumables,
-        [
-          { label: 'Item', key: 'item' },
-          { label: 'Quantity', key: 'quantity' },
-          { label: 'Unit', key: 'unit' },
-        ],
-        (idx) => {
-          setEditingConsumable(idx);
-          setConsumableInput(consumables[idx]);
-        }
-      )}
-
-      <h2 className="text-xl font-semibold mb-3">Operations</h2>
-      <form
-        onSubmit={
-          editingOperation !== null
-            ? handleSave(
-                editingOperation,
-                setOperations,
-                operationInput,
-                setOperationInput,
-                { item: '', type: 'Add', quantity: '', unit: 'kg', date: today },
-                setSavingOperation,
-                setEditingOperation
-              )
-            : handleAdd(
-                operationInput,
-                setOperationInput,
-                setOperations,
-                { item: '', type: 'Add', quantity: '', unit: 'kg', date: today }
-              )
-        }
-        className="mb-4 flex flex-col sm:flex-row flex-wrap gap-2"
-      >
-        <input
-          type="text"
-          name="item"
-          value={operationInput.item}
-          onChange={handleChange(setOperationInput)}
-          placeholder="Item"
-          className="p-1 border rounded flex-1"
-          required
-        />
-        <select
-          name="type"
-          value={operationInput.type}
-          onChange={handleChange(setOperationInput)}
+          value={greenForm.unit}
+          onChange={handleGreenChange}
           className="p-1 border rounded"
         >
-          <option value="Add">Add</option>
-          <option value="Remove">Remove</option>
+          <option value="kg">kg</option>
+          <option value="lbs">lbs</option>
         </select>
-        <div className="flex flex-1 gap-1">
-          <input
-            type="number"
-            name="quantity"
-            value={operationInput.quantity}
-            onChange={handleChange(setOperationInput)}
-            placeholder="Quantity"
-            className="p-1 border rounded flex-1"
-            required
-          />
-          <select
-            name="unit"
-            value={operationInput.unit}
-            onChange={handleChange(setOperationInput)}
-            className="p-1 border rounded"
-          >
-            <option value="kg">kg</option>
-            <option value="lbs">lbs</option>
-            <option value="grams">grams</option>
-            <option value="kilograms">kilograms</option>
-            <option value="ml">ml</option>
-            <option value="liters">liters</option>
-            <option value="boxes">boxes</option>
-            <option value="units">units</option>
-          </select>
-        </div>
+        <button type="submit" className="px-3 py-1 bg-dark-green text-white rounded">
+          Add
+        </button>
+      </form>
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Green Coffee</h3>
+      <div className="overflow-x-auto w-full mb-8">
+        <table className="min-w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-dark-green text-white">
+              <th className="border px-2 py-1 text-left">Coffee</th>
+              <th className="border px-2 py-1 text-left">Quantity</th>
+              <th className="border px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {greenInventory.map((g, idx) => (
+              <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                <td className="border px-2 py-1">{g.coffee.name}</td>
+                <td className="border px-2 py-1">
+                  {g.quantity} {g.unit}
+                </td>
+                <td className="border px-2 py-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => createRoastFromGreen(idx)}
+                    className="text-dark-green underline"
+                  >
+                    Create Roast
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Roasted Coffee</h3>
+      <div className="overflow-x-auto w-full">
+        <table className="min-w-full border-collapse mb-8 text-sm">
+          <thead>
+            <tr className="bg-dark-green text-white">
+              <th className="border px-2 py-1 text-left">Coffee</th>
+              <th className="border px-2 py-1 text-left">Quantity</th>
+              <th className="border px-2 py-1 text-left">Bags</th>
+              <th className="border px-2 py-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {roastedInventory.map((r, idx) => (
+              <React.Fragment key={idx}>
+                <tr className="odd:bg-dark-green/5 even:bg-white">
+                  <td className="border px-2 py-1">{r.coffee.name}</td>
+                  <td className="border px-2 py-1">
+                    {r.quantity} {r.unit}
+                  </td>
+                  <td className="border px-2 py-1">{getBagCount(r.coffee)}</td>
+                  <td className="border px-2 py-1 text-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => editRoasted(idx)}
+                      className="text-blue-600 underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startBagging(idx)}
+                      className="text-dark-green underline"
+                    >
+                      Create Bag
+                    </button>
+                  </td>
+                </tr>
+                {bagForm && bagForm.index === idx && (
+                  <tr>
+                    <td colSpan="4" className="border px-2 py-2 bg-dark-green/10">
+                      {bagMax > 0 ? (
+                        <form
+                          onSubmit={submitBagForm}
+                          className="flex flex-wrap items-center gap-2"
+                        >
+                          <label className="flex items-center gap-1">
+                            Size (g)
+                            <select
+                              name="bagWeight"
+                              value={bagForm.bagWeight}
+                              onChange={handleBagChange}
+                              className="border p-1 rounded"
+                            >
+                              <option value={250}>250</option>
+                              <option value={500}>500</option>
+                              <option value={1000}>1000</option>
+                            </select>
+                          </label>
+                          <label className="flex items-center gap-2 flex-1">
+                            Bags
+                            <input
+                              type="range"
+                              name="numBags"
+                              min="1"
+                              max={bagMax}
+                              value={bagForm.numBags}
+                              onChange={handleBagChange}
+                              className="flex-1"
+                            />
+                            <span>{bagForm.numBags}</span>
+                          </label>
+                          <span className="text-sm">
+                            Left: {bagLeft.toFixed(2)} {bagEntry.unit}
+                          </span>
+                          <input
+                            type="number"
+                            name="costPrice"
+                            value={bagForm.costPrice}
+                            onChange={handleBagChange}
+                            placeholder="Cost"
+                            className="border p-1 rounded w-20"
+                            required
+                          />
+                          <input
+                            type="number"
+                            name="retailPrice"
+                            value={bagForm.retailPrice}
+                            onChange={handleBagChange}
+                            placeholder="Retail"
+                            className="border p-1 rounded w-20"
+                            required
+                          />
+                          <button
+                            type="submit"
+                            className="px-2 py-1 bg-dark-green text-white rounded"
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelBagForm}
+                            className="px-2 py-1 underline text-red-600"
+                          >
+                            Cancel
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="flex justify-between items-center">
+                          <span>Not enough coffee for selected size.</span>
+                          <button
+                            type="button"
+                            onClick={cancelBagForm}
+                            className="px-2 py-1 underline text-red-600"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {bags.length > 0 && (
+        <>
+          <h3 className="text-lg font-semibold mb-2 text-dark-green">
+            Bags for Sale
+          </h3>
+          <div className="overflow-x-auto w-full mb-8">
+            <table className="min-w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-dark-green text-white">
+                  <th className="border px-2 py-1 text-left">Coffee</th>
+                  <th className="border px-2 py-1 text-left">Bag Size (g)</th>
+                  <th className="border px-2 py-1 text-left">Bags</th>
+                  <th className="border px-2 py-1 text-left">Cost Price</th>
+                  <th className="border px-2 py-1 text-left">Retail Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bags.map((b, i) => (
+                  <tr key={i} className="odd:bg-dark-green/5 even:bg-white">
+                    <td className="border px-2 py-1">{b.coffee.name}</td>
+                    <td className="border px-2 py-1">{b.bagWeight}</td>
+                    <td className="border px-2 py-1">{b.numBags}</td>
+                    <td className="border px-2 py-1">{b.costPrice}</td>
+                    <td className="border px-2 py-1">{b.retailPrice}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Filter Refill</h3>
+      <form onSubmit={addFilterRefill} className="mb-4 flex flex-wrap gap-2 items-end">
+        <select
+          name="coffeeIndex"
+          value={filterForm.coffeeIndex}
+          onChange={handleFilterChange}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Select Roasted Coffee
+          </option>
+          {roastedInventory.map((r, idx) => (
+            <option key={idx} value={idx}>
+              {r.coffee.name}
+            </option>
+          ))}
+        </select>
         <input
-          type="date"
-          name="date"
-          value={operationInput.date}
-          onChange={handleChange(setOperationInput)}
+          type="number"
+          name="quantity"
+          value={filterForm.quantity}
+          onChange={handleFilterChange}
+          placeholder="Quantity"
           className="p-1 border rounded flex-1"
           required
         />
-        <button
-          type="submit"
-          className="px-3 py-1 bg-beige-dark text-gray-800 rounded flex items-center justify-center min-w-[64px]"
-          disabled={savingOperation}
-        >
-          {savingOperation ? (
-            <span className="w-4 h-4 border-2 border-t-transparent border-gray-800 rounded-full animate-spin" />
-          ) : editingOperation !== null ? (
-            'Save'
-          ) : (
-            'Add'
-          )}
+        <button type="submit" className="px-3 py-1 bg-dark-green text-white rounded">
+          Use
         </button>
       </form>
-      {renderTable(
-        operationsWithTotals(),
-        [
-          { label: 'Item', key: 'item' },
-          { label: 'Type', key: 'type' },
-          { label: 'Quantity', key: 'quantity' },
-          { label: 'Date', key: 'date' },
-          { label: 'Current Qty', key: 'currentQty' },
-        ],
-        (idx) => {
-          setEditingOperation(idx);
-          setOperationInput(operations[idx]);
-        }
+      {filterRefills.length > 0 && (
+        <div className="overflow-x-auto w-full mb-8">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-dark-green text-white">
+                <th className="border px-2 py-1 text-left">Coffee</th>
+                <th className="border px-2 py-1 text-left">Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filterRefills.map((r, idx) => (
+                <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                  <td className="border px-2 py-1">{r.coffee.name}</td>
+                  <td className="border px-2 py-1">
+                    {r.quantity} {r.unit}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <h3 className="text-lg font-semibold mb-2 text-dark-green">Espresso Refill</h3>
+      <form onSubmit={addEspressoRefill} className="mb-4 flex flex-wrap gap-2 items-end">
+        <select
+          name="coffeeIndex"
+          value={espressoForm.coffeeIndex}
+          onChange={handleEspressoChange}
+          className="p-1 border rounded flex-1"
+          required
+        >
+          <option value="" disabled>
+            Select Roasted Coffee
+          </option>
+          {roastedInventory.map((r, idx) => (
+            <option key={idx} value={idx}>
+              {r.coffee.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          name="quantity"
+          value={espressoForm.quantity}
+          onChange={handleEspressoChange}
+          placeholder="Quantity"
+          className="p-1 border rounded flex-1"
+          required
+        />
+        <button type="submit" className="px-3 py-1 bg-dark-green text-white rounded">
+          Use
+        </button>
+      </form>
+      {espressoRefills.length > 0 && (
+        <div className="overflow-x-auto w-full mb-8">
+          <table className="min-w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-dark-green text-white">
+                <th className="border px-2 py-1 text-left">Coffee</th>
+                <th className="border px-2 py-1 text-left">Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {espressoRefills.map((r, idx) => (
+                <tr key={idx} className="odd:bg-dark-green/5 even:bg-white">
+                  <td className="border px-2 py-1">{r.coffee.name}</td>
+                  <td className="border px-2 py-1">
+                    {r.quantity} {r.unit}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 }
 
 export default Inventory;
-
